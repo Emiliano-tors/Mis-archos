@@ -1,0 +1,50 @@
+<script>
+    function enviarMensaje() {
+        let input = document.getElementById("user-input");
+        let chatBox = document.getElementById("chat-box");
+        let msg = input.value.toLowerCase().trim();
+
+        if (msg === "") return;
+
+        chatBox.innerHTML += `<div class="user-msg">> ${input.value}</div>`;
+        
+        // --- RESPUESTAS NEUTRALES Y EFICIENTES ---
+        let respuestasGenerales = [
+            "Entendido. Procesando la información recibida.",
+            "Dato registrado en el sistema. ¿Hay algo más que deba procesar?",
+            "Afirmativo. Los sistemas se mantienen estables.",
+            "Recibido. Continúe con el siguiente comando.",
+            "Análisis en curso. No se detectan anomalías.",
+            "Comando aceptado. Esperando instrucciones adicionales."
+        ];
+
+        let respuesta = "";
+
+        // --- FILTRO DE PALABRAS CLAVE (SIN APODOS) ---
+        if (msg.includes("hola") || msg.includes("saludos")) {
+            respuesta = "Terminal ZK iniciada. Sistema operativo y listo para recibir órdenes.";
+        } 
+        else if (msg.includes("quien eres")) {
+            respuesta = "Soy el núcleo de procesamiento de este búnker. No tengo acceso a datos personales de terceros.";
+        }
+        else if (msg.includes("estás ahí")) {
+            respuesta = "El núcleo se encuentra activo y respondiendo en tiempo real.";
+        }
+        else if (msg.includes("ok") || msg.includes("bien")) {
+            respuesta = "Confirmado. Mantengo el monitoreo de la sesión.";
+        }
+        else {
+            // Elige una respuesta seria al azar si no hay coincidencia exacta
+            respuesta = respuestasGenerales[Math.floor(Math.random() * respuestasGenerales.length)];
+        }
+
+        // Efecto de respuesta rápida
+        setTimeout(() => {
+            chatBox.innerHTML += `<div class="bot-msg">ZK_CORE: ${respuesta}</div>`;
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }, 400);
+
+        input.value = "";
+    }
+              </script>
+              
