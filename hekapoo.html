@@ -5,160 +5,52 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Visor de Cómics ZK</title>
     <style>
-        body {
-            background-color: #000;
-            color: #0f0;
-            font-family: monospace;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-        }
-
-        #cabecera {
-            width: 100%;
-            padding: 10px;
-            text-align: center;
-            background: rgba(0, 0, 0, 0.8);
-            position: fixed;
-            top: 0;
-            z-index: 10;
-        }
-
+        body { background-color: #000; color: #0f0; font-family: monospace; margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+        #cabecera { width: 100%; padding: 10px; text-align: center; background: rgba(0, 0, 0, 0.8); position: fixed; top: 0; z-index: 10; border-bottom: 2px solid #0f0; }
         #cabecera h2 { margin: 0; font-size: 1.2em; }
         #cabecera p { margin: 5px 0 0; font-size: 0.9em; opacity: 0.8; }
-
-        #contenedor-imagen {
-            margin-top: 70px; /* Espacio para la cabecera fija */
-            margin-bottom: 80px; /* Espacio para los botones fijos */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
-        }
-
-        #imagenPrincipal {
-            max-width: 95%;
-            height: auto;
-            border: 2px solid #0f0;
-            border-radius: 5px;
-        }
-
-        #controles {
-            width: 100%;
-            padding: 15px;
-            background: rgba(0, 0, 0, 0.8);
-            position: fixed;
-            bottom: 0;
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            z-index: 10;
-        }
-
-        .btn-nav {
-            background: #0f0;
-            color: #000;
-            border: none;
-            padding: 12px 24px;
-            font-weight: bold;
-            font-size: 1.1em;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        /* Estilo para la imagen rota (error de carga) */
-        #imagenPrincipal:after {
-            content: "⚠️ ERROR: Imagen no encontrada o link roto.";
-            display: block;
-            padding: 20px;
-            color: red;
-            background: #111;
-            border: 2px dashed red;
-            text-align: center;
-        }
+        #contenedor-imagen { margin-top: 70px; margin-bottom: 80px; display: flex; justify-content: center; align-items: center; width: 100%; }
+        #imagenPrincipal { max-width: 95%; height: auto; border: 2px solid #0f0; border-radius: 5px; }
+        #controles { width: 100%; padding: 15px; background: rgba(0, 0, 0, 0.8); position: fixed; bottom: 0; display: flex; justify-content: center; gap: 20px; z-index: 10; border-top: 2px solid #0f0; }
+        .btn-nav { background: #0f0; color: #000; border: none; padding: 12px 24px; font-weight: bold; font-size: 1.1em; border-radius: 5px; cursor: pointer; text-transform: uppercase; font-family: monospace; }
+        #imagenPrincipal:after { content: "⚠️ ERROR: Imagen no encontrada o link roto."; display: block; padding: 20px; color: red; background: #111; border: 2px dashed red; text-align: center; }
     </style>
 </head>
 <body>
-
     <div id="cabecera">
         <h2>[ Las Pruebas de Hekapoo ]</h2>
-        <p id="contador">Página 1 de X</p>
+        <p id="contador">Cargando...</p>
     </div>
-
     <div id="contenedor-imagen">
         <img id="imagenPrincipal" src="" alt="Cargando página...">
     </div>
-
     <div id="controles">
         <button class="btn-nav" onclick="cambiarPagina(-1)">◀ ATRÁS</button>
         <button class="btn-nav" onclick="cambiarPagina(1)">SIG ▶</button>
     </div>
-
     <script>
         // ==========================================
-        // CONFIGURACIÓN: Aquí pegas los links
+        // CONFIGURACIÓN: Aquí están tus 13 fotos
         // ==========================================
         var paginas = [
-            "Https://chochox.com/wp-content/uploads/2022/05/Las-Pruebas-de-Hekapoo-Hermit-Moth-01-1045x1536.jpg",
-            "LINK_PAGINA_02.jpg",
-            "LINK_PAGINA_03.jpg",
-            "LINK_PAGINA_04.jpg",
-            "LINK_PAGINA_05.jpg",
-            "LINK_PAGINA_06.jpg",
-            "LINK_PAGINA_07.jpg",
-            "LINK_PAGINA_08.jpg",
-            "LINK_PAGINA_09.jpg",
-            "LINK_PAGINA_10.jpg",
-            "LINK_PAGINA_11.jpg",
-            "LINK_PAGINA_12.jpg",
-            "LINK_PAGINA_13.jpg"
-            // Puedes agregar más comas y links si el cómic tiene más páginas
+            "1.jpg", "2.jpg", "3.jpg", "4.jpg", "5.jpg", "6.jpg", "7.jpg", "8.jpg", "9.jpg", "10.jpg", "11.jpg", "12.jpg", "13.jpg"
         ];
-
         var indiceActual = 0;
         var totalPaginas = paginas.length;
-
-        // Elementos de la página
         var imgMain = document.getElementById("imagenPrincipal");
         var txtContador = document.getElementById("contador");
-
-        // Función para actualizar lo que se ve
         function actualizarVisor() {
-            // Ponemos la imagen actual
             imgMain.src = paginas[indiceActual];
-            
-            // Actualizamos el contador (sumamos 1 porque el índice empieza en 0)
             txtContador.innerText = "Página " + (indiceActual + 1) + " de " + totalPaginas;
-
-            // Hacemos scroll hacia arriba para que la nueva página empiece desde el inicio
             window.scrollTo(0, 0);
         }
-
-        // Función para cambiar de página (adelante o atrás)
         function cambiarPagina(direccion) {
             indiceActual += direccion;
-
-            // Evitamos salirnos de los límites
-            if (indiceActual < 0) {
-                indiceActual = 0; // Si le da atrás en la 1, se queda en la 1
-            }
-            if (indiceActual >= totalPaginas) {
-                indiceActual = totalPaginas - 1; // Si le da sig en la última, se queda ahí
-            }
-
+            if (indiceActual < 0) { indiceActual = 0; }
+            if (indiceActual >= totalPaginas) { indiceActual = totalPaginas - 1; }
             actualizarVisor();
         }
-
-        // Cargar la primera página al abrir
-        if (totalPaginas > 0) {
-            actualizarVisor();
-        } else {
-            txtContador.innerText = "No hay páginas cargadas.";
-        }
+        if (totalPaginas > 0) { actualizarVisor(); } else { txtContador.innerText = "No hay páginas cargadas."; }
     </script>
-
 </body>
 </html>
