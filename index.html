@@ -37,64 +37,9 @@
     Lonely girl ZK
     </a>
 
-    <h2 style="color:#0f0; margin-top:30px;">[ Comics ]</h2>
-
-<button onclick="abrirGaleria(0)" style="display:block; width:100%; background:#222; color:#0f0; padding:15px; border:1px solid #0f0; margin-top:10px; font-weight:bold;"> Las Pruebas de Hekapoo – Hermit Moth </button>
-
-<button onclick="abrirGaleria(1)" style="display:block; width:100%; background:#222; color:#0f0; padding:15px; border:1px solid #0f0; margin-top:10px; font-weight:bold;"> Ver Edificios </button>
-
-<button onclick="abrirGaleria(2)" style="display:block; width:100%; background:#222; color:#0f0; padding:15px; border:1px solid #0f0; margin-top:10px; font-weight:bold;"> Ver Paisaje </button>
-
-<div id="visorFotos" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:1000; text-align:center; padding-top:50px;">
-    
-    <h3 id="textoCapitulo" style="color:#0f0; font-family:monospace; margin-bottom:20px;">Cap 1</h3>
-    
-    <button onclick="cerrarGaleria()" style="position:absolute; top:10px; right:10px; background:red; color:white; border:none; padding:10px; border-radius:5px;">X</button>
-
-    <img id="imagenPrincipal" src="" style="width:90%; max-width:500px; border:2px solid #0f0; border-radius:10px;">
-
-    <div style="margin-top:30px;">
-        <button onclick="cambiar( -1 )" style="background:#0f0; color:#000; padding:15px 30px; border:none; font-weight:bold; border-radius:5px;"> ◀ ATRÁS </button>
-        <button onclick="cambiar( 1 )" style="background:#0f0; color:#000; padding:15px 30px; border:none; font-weight:bold; border-radius:5px; margin-left:20px;"> SIG ▶ </button>
-    </div>
-</div>
-
-<script>
-    // 1. Aquí pones los links directos de tus fotos
-    var misFotos = [
-        "content://media/external/downloads/1000228152",
-        "https://.../Hekapoo-02.jpg",
-        "https://.../Hekapoo-03.jpg"
-    ];
-
-    var indiceActual = 0;
-
-    // Función para abrir en una foto específica
-    function abrirGaleria(n) {
-        indiceActual = n;
-        actualizarPantalla();
-        document.getElementById("visorFotos").style.display = "block";
-    }
-
-    // Función para cerrar
-    function cerrarGaleria() {
-        document.getElementById("visorFotos").style.display = "none";
-    }
-
-    // Función para mover adelante o atrás
-    function cambiar(direccion) {
-        indiceActual += direccion;
-        if (indiceActual >= misFotos.length) indiceActual = 0;
-        if (indiceActual < 0) indiceActual = misFotos.length - 1;
-        actualizarPantalla();
-    }
-
-    // Actualiza el texto de Cap y la imagen
-    function actualizarPantalla() {
-        document.getElementById("imagenPrincipal").src = misFotos[indiceActual];
-        document.getElementById("textoCapitulo").innerText = "Cap " + (indiceActual + 1);
-    }
-</script>
+    <p style="color: #0f0; font-size: 1.2rem; margin-top: 8px; text-align: center; font-weight: bold;">
+    Nota: un juego bastante entretenido de 2D de animaciónes suculentas
+    </p>
     
     <p style="margin-top:50px; color:#444; font-size:0.8rem;">Acceso Privado - Vercel</p>
 </body>
