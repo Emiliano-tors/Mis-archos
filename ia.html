@@ -1,50 +1,135 @@
-<script>
-    function enviarMensaje() {
-        let input = document.getElementById("user-input");
-        let chatBox = document.getElementById("chat-box");
-        let msg = input.value.toLowerCase().trim();
-
-        if (msg === "") return;
-
-        chatBox.innerHTML += `<div class="user-msg">> ${input.value}</div>`;
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IA ZK - Terminal Pro</title>
+    <style>
+        /* CSS GENERAL (Maquillaje de la Página) */
+        body { background-color: #000; color: #fff; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 0; display: flex; height: 100vh; overflow: hidden; }
         
-        // --- RESPUESTAS NEUTRALES Y EFICIENTES ---
-        let respuestasGenerales = [
-            "Entendido. Procesando la información recibida.",
-            "Dato registrado en el sistema. ¿Hay algo más que deba procesar?",
-            "Afirmativo. Los sistemas se mantienen estables.",
-            "Recibido. Continúe con el siguiente comando.",
-            "Análisis en curso. No se detectan anomalías.",
-            "Comando aceptado. Esperando instrucciones adicionales."
-        ];
+        /* EL MENÚ LATERAL (Secreto) */
+        #menu-lateral { background-color: #111; width: 280px; position: fixed; top: 0; left: -280px; height: 100%; transition: left 0.3s ease; display: flex; flex-direction: column; padding: 20px; box-sizing: border-box; z-index: 1000; border-right: 1px solid #333; }
+        #menu-lateral.abierto { left: 0; }
+        #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; z-index: 999; }
+        #overlay.abierto { display: block; }
 
-        let respuesta = "";
+        /* Estilo de los links en el menú */
+        .seccion-menu { margin-bottom: 25px; }
+        .titulo-seccion { color: #888; font-size: 12px; text-transform: uppercase; margin-bottom: 10px; font-weight: bold; }
+        .link-menu { display: block; color: #fff; text-decoration: none; padding: 12px; border-radius: 8px; font-size: 15px; margin-bottom: 5px; }
+        .link-menu:active { background-color: #333; }
 
-        // --- FILTRO DE PALABRAS CLAVE (SIN APODOS) ---
-        if (msg.includes("hola") || msg.includes("saludos")) {
-            respuesta = "Terminal ZK iniciada. Sistema operativo y listo para recibir órdenes.";
-        } 
-        else if (msg.includes("quien eres")) {
-            respuesta = "Soy el núcleo de procesamiento de este búnker. No tengo acceso a datos personales de terceros.";
-        }
-        else if (msg.includes("estás ahí")) {
-            respuesta = "El núcleo se encuentra activo y respondiendo en tiempo real.";
-        }
-        else if (msg.includes("ok") || msg.includes("bien")) {
-            respuesta = "Confirmado. Mantengo el monitoreo de la sesión.";
-        }
-        else {
-            // Elige una respuesta seria al azar si no hay coincidencia exacta
-            respuesta = respuestasGenerales[Math.floor(Math.random() * respuestasGenerales.length)];
+        /* LA BARRA SUPERIOR (Donde está el botón de menú) */
+        #barra-superior { height: 60px; background-color: #000; display: flex; align-items: center; justify-content: space-between; padding: 0 15px; border-bottom: 1px solid #333; position: fixed; top: 0; width: 100%; box-sizing: border-box; z-index: 998; }
+        #boton-menu { color: #fff; font-size: 30px; cursor: pointer; background: none; border: none; padding: 0; }
+        #titulo-header { color: #fff; font-size: 18px; font-weight: bold; }
+
+        /* ZONA DEL CHAT PRINCIPAL */
+        #contenedor-chat { flex-grow: 1; display: flex; flex-direction: column; margin-top: 60px; height: calc(100vh - 60px); }
+        
+        /* CUADRO DE MENSAJES */
+        #chat-box { flex-grow: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
+        .user-msg { align-self: flex-end; background-color: #333; color: #fff; padding: 10px 15px; border-radius: 15px 15px 5px 15px; max-width: 80%; }
+        .bot-msg { align-self: flex-start; background-color: #1a1a1a; color: #fff; padding: 10px 15px; border-radius: 15px 15px 15px 5px; max-width: 80%; border: 1px solid #333; }
+
+        /* ZONA DE ENTRADA (Como la app) */
+        #zona-entrada { background-color: #000; padding: 10px 15px; display: flex; align-items: center; border-top: 1px solid #333; }
+        #user-input { flex-grow: 1; background-color: #222; border: none; color: #fff; padding: 15px; border-radius: 25px; outline: none; font-size: 16px; margin-right: 10px; }
+        #boton-enviar { background-color: #fff; color: #000; border: none; padding: 15px 20px; border-radius: 50%; font-weight: bold; cursor: pointer; font-size: 16px; transition: transform 0.1s; }
+        #boton-enviar:active { transform: scale(0.9); }
+    </style>
+</head>
+<body>
+
+    <div id="overlay" onclick="toggleMenu()"></div>
+
+    <div id="menu-lateral">
+        <div class="seccion-menu">
+            <a href="index.html" class="link-menu">◀ Volver al Búnker</a>
+            <div class="link-menu" style="background-color: #333; color: #fff;">+ Nuevo Chat</div>
+        </div>
+
+        <div class="seccion-menu">
+            <div class="titulo-seccion">Mis cosas</div>
+            <a href="ia.html" class="link-menu">IA - ZK</a>
+        </div>
+
+        <div class="seccion-menu">
+            <div class="titulo-seccion">Chats</div>
+            <a href="cine.html" class="link-menu">🎬 Cine 1 - Loop</a>
+            <a href="cine2.html" class="link-menu">🎬 Cine 2 - Gears</a>
+            <a href="cine3.html" class="link-menu">🎬 Cine 3 - MK</a>
+            <a href="cine4.html" class="link-menu">🎬 Cine 4 - Farm</a>
+            <a href="cine5.html" class="link-menu">🎬 Cine 5 - VSS</a>
+            <a href="hekappo.html" class="link-menu">📖 Hekapoo - Cómic</a>
+        </div>
+    </div>
+
+    <div id="barra-superior">
+        <button id="boton-menu" onclick="toggleMenu()">&#9776;</button>
+        <div id="titulo-header">Inicio - Terminal</div>
+        <div style="width: 30px;"></div> </div>
+
+    <div id="contenedor-chat">
+        <div id="chat-box">
+            <div id="msj-inicial" style="color: #666; text-align: center; margin-top: 50px;">
+                Escribe un comando para iniciar la sesión.
+            </div>
+        </div>
+        
+        <div id="zona-entrada">
+            <input type="text" id="user-input" placeholder="Escribe al núcleo...">
+            <button id="boton-enviar" onclick="enviarMensaje()">&#10148;</button>
+        </div>
+    </div>
+
+    <script>
+        // --- FUNCIÓN DEL MENÚ (Aparecer/Esconder) ---
+        function toggleMenu() {
+            document.getElementById("menu-lateral").classList.toggle("abierto");
+            document.getElementById("overlay").classList.toggle("abierto");
         }
 
-        // Efecto de respuesta rápida
-        setTimeout(() => {
-            chatBox.innerHTML += `<div class="bot-msg">ZK_CORE: ${respuesta}</div>`;
-            chatBox.scrollTop = chatBox.scrollHeight;
-        }, 400);
+        // --- FUNCIÓN DEL CHAT (Mecanismo) ---
+        function enviarMensaje() {
+            let input = document.getElementById("user-input");
+            let chatBox = document.getElementById("chat-box");
+            let header = document.getElementById("titulo-header");
+            let userPrompt = input.value.trim();
 
-        input.value = "";
-    }
-              </script>
-              
+            if (userPrompt === "") return;
+
+            // Borrar mensaje inicial si existe
+            let msjInicial = document.getElementById("msj-inicial");
+            if (msjInicial) msjInicial.remove();
+
+            // Cambiar el título del header para que "combine" con tu mensaje
+            // Usamos las primeras 3 palabras de tu mensaje como título
+            let tituloNuevo = userPrompt.split(' ').slice(0, 3).join(' ');
+            header.innerText = tituloNuevo.charAt(0).toUpperCase() + tituloNuevo.slice(1) + "...";
+
+            // Mostrar tu mensaje
+            chatBox.innerHTML += `<div class="user-msg">${input.value}</div>`;
+            
+            // RESPUESTA NEUTRAL Y SERIA (Como lo básico que pediste)
+            let respuesta = "Comando aceptado. Procesando información. No tengo acceso a datos personales.";
+
+            // Simulación de respuesta rápida
+            setTimeout(() => {
+                chatBox.innerHTML += `<div class="bot-msg">${respuesta}</div>`;
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }, 400);
+
+            input.value = "";
+        }
+
+        // Para que el botón "Enviar" funcione con la tecla Enter
+        document.getElementById("user-input").addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                document.getElementById("boton-enviar").click();
+            }
+        });
+    </script>
+</body>
+</html>
