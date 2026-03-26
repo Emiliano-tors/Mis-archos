@@ -5,39 +5,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IA ZK - Terminal Pro</title>
     <style>
-        /* CSS GENERAL (Maquillaje de la Página) */
-        body { background-color: #000; color: #fff; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 0; display: flex; height: 100vh; overflow: hidden; }
+        body { background-color: #000; color: #fff; font-family: sans-serif; margin: 0; padding: 0; display: flex; height: 100vh; overflow: hidden; }
         
-        /* EL MENÚ LATERAL (Secreto) */
-        #menu-lateral { background-color: #111; width: 280px; position: fixed; top: 0; left: -280px; height: 100%; transition: left 0.3s ease; display: flex; flex-direction: column; padding: 20px; box-sizing: border-box; z-index: 1000; border-right: 1px solid #333; }
+        /* MENÚ LATERAL */
+        #menu-lateral { background-color: #111; width: 280px; position: fixed; top: 0; left: -280px; height: 100%; transition: 0.3s; display: flex; flex-direction: column; padding: 20px; box-sizing: border-box; z-index: 1000; border-right: 1px solid #333; }
         #menu-lateral.abierto { left: 0; }
-        #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; z-index: 999; }
+        #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: none; z-index: 999; }
         #overlay.abierto { display: block; }
 
-        /* Estilo de los links en el menú */
-        .seccion-menu { margin-bottom: 25px; }
-        .titulo-seccion { color: #888; font-size: 12px; text-transform: uppercase; margin-bottom: 10px; font-weight: bold; }
-        .link-menu { display: block; color: #fff; text-decoration: none; padding: 12px; border-radius: 8px; font-size: 15px; margin-bottom: 5px; }
+        .titulo-seccion { color: #888; font-size: 12px; text-transform: uppercase; margin: 15px 0 10px 0; font-weight: bold; }
+        .link-menu { display: block; color: #fff; text-decoration: none; padding: 12px; border-radius: 8px; font-size: 15px; }
         .link-menu:active { background-color: #333; }
 
-        /* LA BARRA SUPERIOR (Donde está el botón de menú) */
-        #barra-superior { height: 60px; background-color: #000; display: flex; align-items: center; justify-content: space-between; padding: 0 15px; border-bottom: 1px solid #333; position: fixed; top: 0; width: 100%; box-sizing: border-box; z-index: 998; }
-        #boton-menu { color: #fff; font-size: 30px; cursor: pointer; background: none; border: none; padding: 0; }
-        #titulo-header { color: #fff; font-size: 18px; font-weight: bold; }
+        /* BARRA SUPERIOR */
+        #barra-superior { height: 60px; background: #000; display: flex; align-items: center; padding: 0 15px; border-bottom: 1px solid #333; position: fixed; top: 0; width: 100%; box-sizing: border-box; z-index: 998; }
+        #boton-menu { color: #fff; font-size: 24px; background: none; border: none; cursor: pointer; margin-right: 20px; }
+        #titulo-header { font-size: 18px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-grow: 1; }
 
-        /* ZONA DEL CHAT PRINCIPAL */
-        #contenedor-chat { flex-grow: 1; display: flex; flex-direction: column; margin-top: 60px; height: calc(100vh - 60px); }
-        
-        /* CUADRO DE MENSAJES */
+        /* CHAT */
+        #contenedor-chat { flex-grow: 1; display: flex; flex-direction: column; margin-top: 60px; height: calc(100vh - 60px); width: 100%; }
         #chat-box { flex-grow: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
-        .user-msg { align-self: flex-end; background-color: #333; color: #fff; padding: 10px 15px; border-radius: 15px 15px 5px 15px; max-width: 80%; }
-        .bot-msg { align-self: flex-start; background-color: #1a1a1a; color: #fff; padding: 10px 15px; border-radius: 15px 15px 15px 5px; max-width: 80%; border: 1px solid #333; }
+        .user-msg { align-self: flex-end; background: #333; padding: 10px 15px; border-radius: 15px 15px 0 15px; max-width: 80%; }
+        .bot-msg { align-self: flex-start; background: #1a1a1a; padding: 10px 15px; border-radius: 15px 15px 15px 0; max-width: 80%; border: 1px solid #333; }
 
-        /* ZONA DE ENTRADA (Como la app) */
-        #zona-entrada { background-color: #000; padding: 10px 15px; display: flex; align-items: center; border-top: 1px solid #333; }
-        #user-input { flex-grow: 1; background-color: #222; border: none; color: #fff; padding: 15px; border-radius: 25px; outline: none; font-size: 16px; margin-right: 10px; }
-        #boton-enviar { background-color: #fff; color: #000; border: none; padding: 15px 20px; border-radius: 50%; font-weight: bold; cursor: pointer; font-size: 16px; transition: transform 0.1s; }
-        #boton-enviar:active { transform: scale(0.9); }
+        /* ENTRADA */
+        #zona-entrada { background: #000; padding: 15px; display: flex; align-items: center; border-top: 1px solid #333; }
+        #user-input { flex-grow: 1; background: #222; border: none; color: #fff; padding: 12px 18px; border-radius: 25px; outline: none; font-size: 16px; }
+        #boton-enviar { background: #fff; color: #000; border: none; padding: 10px 15px; border-radius: 50%; font-size: 18px; margin-left: 10px; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -45,91 +39,67 @@
     <div id="overlay" onclick="toggleMenu()"></div>
 
     <div id="menu-lateral">
-        <div class="seccion-menu">
-            <a href="index.html" class="link-menu">◀ Volver al Búnker</a>
-            <div class="link-menu" style="background-color: #333; color: #fff;">+ Nuevo Chat</div>
-        </div>
-
-        <div class="seccion-menu">
-            <div class="titulo-seccion">Mis cosas</div>
-            <a href="ia.html" class="link-menu">IA - ZK</a>
-        </div>
-
-        <div class="seccion-menu">
-            <div class="titulo-seccion">Chats</div>
-            <a href="cine.html" class="link-menu">🎬 Cine 1 - Loop</a>
-            <a href="cine2.html" class="link-menu">🎬 Cine 2 - Gears</a>
-            <a href="cine3.html" class="link-menu">🎬 Cine 3 - MK</a>
-            <a href="cine4.html" class="link-menu">🎬 Cine 4 - Farm</a>
-            <a href="cine5.html" class="link-menu">🎬 Cine 5 - VSS</a>
-            <a href="hekappo.html" class="link-menu">📖 Hekapoo - Cómic</a>
-        </div>
+        <a href="index.html" class="link-menu" style="border-bottom: 1px solid #333; margin-bottom: 10px;">◀ Volver al Búnker</a>
+        <div class="titulo-seccion">Recientes</div>
+        <a href="ia.html" class="link-menu">Nueva sesión</a>
+        <div class="titulo-seccion">Búnker ZK</div>
+        <a href="cine.html" class="link-menu">Cine 1</a>
+        <a href="cine2.html" class="link-menu">Cine 2</a>
+        <a href="cine3.html" class="link-menu">Cine 3</a>
+        <a href="cine4.html" class="link-menu">Cine 4</a>
+        <a href="cine5.html" class="link-menu">Cine 5</a>
+        <a href="hekappo.html" class="link-menu">Hekapoo - Cómic</a>
     </div>
 
     <div id="barra-superior">
         <button id="boton-menu" onclick="toggleMenu()">&#9776;</button>
-        <div id="titulo-header">Inicio - Terminal</div>
-        <div style="width: 30px;"></div> </div>
+        <div id="titulo-header">Chat de Terminal</div>
+    </div>
 
     <div id="contenedor-chat">
         <div id="chat-box">
-            <div id="msj-inicial" style="color: #666; text-align: center; margin-top: 50px;">
-                Escribe un comando para iniciar la sesión.
-            </div>
+            <div style="color: #666; text-align: center; margin-top: 20px; font-size: 14px;">Inicia una conversación con el núcleo ZK</div>
         </div>
-        
         <div id="zona-entrada">
-            <input type="text" id="user-input" placeholder="Escribe al núcleo...">
+            <input type="text" id="user-input" placeholder="Escribir mensaje...">
             <button id="boton-enviar" onclick="enviarMensaje()">&#10148;</button>
         </div>
     </div>
 
     <script>
-        // --- FUNCIÓN DEL MENÚ (Aparecer/Esconder) ---
         function toggleMenu() {
             document.getElementById("menu-lateral").classList.toggle("abierto");
             document.getElementById("overlay").classList.toggle("abierto");
         }
 
-        // --- FUNCIÓN DEL CHAT (Mecanismo) ---
         function enviarMensaje() {
             let input = document.getElementById("user-input");
             let chatBox = document.getElementById("chat-box");
             let header = document.getElementById("titulo-header");
-            let userPrompt = input.value.trim();
+            let val = input.value.trim();
 
-            if (userPrompt === "") return;
+            if (val === "") return;
 
-            // Borrar mensaje inicial si existe
-            let msjInicial = document.getElementById("msj-inicial");
-            if (msjInicial) msjInicial.remove();
+            // Actualizar título del header con las primeras palabras
+            let palabras = val.split(' ');
+            header.innerText = palabras.slice(0, 3).join(' ') + (palabras.length > 3 ? "..." : "");
 
-            // Cambiar el título del header para que "combine" con tu mensaje
-            // Usamos las primeras 3 palabras de tu mensaje como título
-            let tituloNuevo = userPrompt.split(' ').slice(0, 3).join(' ');
-            header.innerText = tituloNuevo.charAt(0).toUpperCase() + tituloNuevo.slice(1) + "...";
-
-            // Mostrar tu mensaje
-            chatBox.innerHTML += `<div class="user-msg">${input.value}</div>`;
+            // Poner tu mensaje
+            chatBox.innerHTML += `<div class="user-msg">${val}</div>`;
             
-            // RESPUESTA NEUTRAL Y SERIA (Como lo básico que pediste)
-            let respuesta = "Comando aceptado. Procesando información. No tengo acceso a datos personales.";
-
-            // Simulación de respuesta rápida
+            // Respuesta automática
             setTimeout(() => {
-                chatBox.innerHTML += `<div class="bot-msg">${respuesta}</div>`;
+                chatBox.innerHTML += `<div class="bot-msg">Recibido. Procesando comando en el sistema ZK. Esperando más datos.</div>`;
                 chatBox.scrollTop = chatBox.scrollHeight;
-            }, 400);
+            }, 500);
 
             input.value = "";
         }
 
-        // Para que el botón "Enviar" funcione con la tecla Enter
-        document.getElementById("user-input").addEventListener("keypress", function(event) {
-            if (event.key === "Enter") {
-                document.getElementById("boton-enviar").click();
-            }
-        });
+        // Enter para enviar
+        document.getElementById("user-input").onkeypress = function(e) {
+            if (e.key === 'Enter') enviarMensaje();
+        };
     </script>
 </body>
 </html>
