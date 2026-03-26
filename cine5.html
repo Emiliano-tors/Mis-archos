@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cine ZK</title>
+    <style>
+        body { background-color: #000; color: #0f0; font-family: monospace; margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+        #cabecera { width: 100%; padding: 10px; text-align: center; background: rgba(0, 0, 0, 0.8); border-bottom: 2px solid #0f0; margin-bottom: 20px;}
+        #cabecera h2 { margin: 0; font-size: 1.2em; }
+        #contenedor-video { width: 95%; max-width: 800px; display: flex; justify-content: center; align-items: center; border: 2px solid #0f0; border-radius: 5px; overflow: hidden; background: #111;}
+        video { width: 100%; height: auto; display: block; }
+        #controles-extra { margin-top: 20px; display: flex; gap: 10px;}
+        .btn-nav { background: #0f0; color: #000; border: none; padding: 10px 20px; font-weight: bold; font-size: 1em; border-radius: 5px; cursor: pointer; text-transform: uppercase; font-family: monospace; text-decoration: none;}
+    </style>
+</head>
+<body>
+    <div id="cabecera">
+        <h2>[ CINE ZK: REPRODUCTOR ]</h2>
+    </div>
+    <div id="contenedor-video">
+        <video controls loop autoplay>
+            <source src="video5.mp4" type="video/mp4">
+            Tu navegador no soporta este video, actualízate máquina.
+        </video>
+    </div>
+    <div id="controles-extra">
+        <a href="index.html" class="btn-nav">◀ VOLVER AL BÚNKER</a>
+    </div>
+</body>
+</html>
