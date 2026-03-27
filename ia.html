@@ -1,58 +1,24 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VIPER-CORE v4.1</title>
-    <style>
-        :root { --bg: #000; --panel: #111; --accent: #0f0; --text: #eee; --border: #333; }
-        body { background: var(--bg); color: var(--text); font-family: sans-serif; margin: 0; display: flex; height: 100vh; overflow: hidden; }
-        
-        /* SIDEBAR CON SISTEMA DE ANCLADO */
-        #sidebar { width: 280px; background: var(--panel); position: fixed; left: -280px; height: 100%; transition: 0.3s; z-index: 1000; border-right: 1px solid var(--border); padding: 15px; box-sizing: border-box; }
-        #sidebar.open { left: 0; }
-        .nav-btn { width: 100%; background: #222; border: 1px solid var(--border); color: #fff; padding: 12px; border-radius: 8px; margin-bottom: 15px; cursor: pointer; font-weight: bold; }
-        
-        .chat-item { padding: 12px; border-radius: 8px; margin-bottom: 5px; background: #1a1a1a; font-size: 14px; display: flex; justify-content: space-between; align-items: center; }
-        .chat-item.pinned { border-left: 3px solid var(--accent); background: #1a2a1a; }
-
-        /* INTERFAZ ESTILO GEMINI (COMPACTA) */
-        #main { flex-grow: 1; display: flex; flex-direction: column; width: 100%; position: relative; }
-        #header { height: 60px; padding: 0 15px; display: flex; align-items: center; border-bottom: 1px solid var(--border); justify-content: space-between; }
-        
-        #chat-box { flex-grow: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 12px; padding-bottom: 120px; }
-        .welcome-msg { text-align: center; margin-top: 40px; color: #888; }
-        .welcome-msg h2 { color: #fff; margin-bottom: 5px; }
-
-        .msg { max-width: 85%; padding: 12px; border-radius: 15px; font-size: 15px; line-height: 1.4; position: relative; }
-        .user { align-self: flex-end; background: #333; color: #fff; border-bottom-right-radius: 2px; }
-        .viper { align-self: flex-start; background: #111; border: 1px solid var(--border); border-bottom-left-radius: 2px; }
-
-        /* BARRA DE RESPUESTA ELEVADA PARA SAMSUNG A03 */
-        #input-container { 
-            position: absolute; 
-            bottom: 0; 
-            width: 100%; 
-            padding: 10px 10px 25px 10px; /* Aumenté el espacio de abajo (25px) */
-            box-sizing: border-box; 
-            background: linear-gradient(transparent, #000 30%); 
+: 30px; 
+            display: flex; 
+            align-items: center; 
+            padding: 5px 15px; 
+            border: 1px solid #444; 
+            gap: 10px; 
+            box-shadow: 0 -5px 25px rgba(0,0,0,0.8);
         }
-        #input-area { background: #222; border-radius: 25px; display: flex; align-items: center; padding: 5px 15px; border: 1px solid #444; gap: 10px; box-shadow: 0 -5px 15px rgba(0,0,0,0.5); }
-        #user-input { flex-grow: 1; background: transparent; border: none; color: #fff; padding: 12px 0; outline: none; font-size: 16px; }
+        #user-input { flex-grow: 1; background: transparent; border: none; color: #fff; padding: 15px 0; outline: none; font-size: 16px; }
         
-        .action-btn { background: none; border: none; color: #fff; font-size: 20px; cursor: pointer; padding: 5px; opacity: 0.7; }
-        .send-btn { color: var(--accent); opacity: 1; font-size: 24px; }
+        .action-btn { background: none; border: none; color: #fff; font-size: 22px; cursor: pointer; padding: 5px; opacity: 0.7; }
+        .send-btn { color: var(--accent); opacity: 1; font-size: 28px; }
 
-        /* MENÚ EMERGENTE (POPUP) */
-        #popup-menu { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 3000; align-items: center; justify-content: center; }
-        .menu-content { background: #1a1a1a; width: 250px; border-radius: 15px; border: 1px solid var(--border); overflow: hidden; }
-        .menu-opt { padding: 15px; border-bottom: 1px solid #333; text-align: center; cursor: pointer; transition: 0.2s; }
+        /* POPUPS Y OVERLAYS */
+        #popup-menu { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 3000; align-items: center; justify-content: center; }
+        .menu-content { background: #1a1a1a; width: 280px; border-radius: 15px; border: 1px solid var(--border); overflow: hidden; }
+        .menu-opt { padding: 18px; border-bottom: 1px solid #333; text-align: center; cursor: pointer; font-size: 16px; }
         .menu-opt:active { background: #333; }
 
-        /* INTERFAZ DE FAVORITOS */
-        #fav-screen { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 4000; padding: 20px; box-sizing: border-box; }
-
-        #overlay-bg { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 999; }
+        #fav-screen { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 4000; padding: 20px; box-sizing: border-box; overflow-y: auto; }
+        #overlay-bg { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1999; }
     </style>
 </head>
 <body>
@@ -60,24 +26,26 @@
     <div id="overlay-bg" onclick="toggleMenu()"></div>
     
     <div id="fav-screen">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-            <h3>⭐ FAVORITOS</h3>
-            <button onclick="closeFavs()" class="nav-btn" style="width:60px; margin:0;">X</button>
+        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom: 1px solid #333; padding-bottom: 10px;">
+            <h3 style="color: var(--accent);">⭐ ARCHIVOS GUARDADOS</h3>
+            <button onclick="closeFavs()" class="nav-btn" style="width:50px; margin:0; background:#333;">X</button>
         </div>
         <div id="fav-list" style="margin-top:20px;"></div>
     </div>
 
     <div id="sidebar">
+        <h2 style="color:var(--accent); margin-bottom: 20px;">BÚNKER VIPER</h2>
         <button class="nav-btn" onclick="newChat()">+ Nuevo Chat</button>
-        <button class="nav-btn" onclick="openFavs()" style="background:#2a2a00; color:#ff0;">⭐ Ver Favoritos</button>
+        <button class="nav-btn" onclick="openFavs()" style="background:#2a2a00; border-color:#550; color:#ff0;">⭐ Ver Favoritos</button>
+        <div style="margin: 15px 0 10px 5px; font-size: 12px; color: #666; font-weight: bold;">HISTORIAL RECIENTE</div>
         <div id="chat-list"></div>
     </div>
 
     <div id="popup-menu">
         <div class="menu-content">
-            <div class="menu-opt" onclick="actionFav()" style="color:#ff0">⭐ Favorito</div>
-            <div class="menu-opt" onclick="actionDelete()" style="color:#f44">🗑️ Borrar</div>
-            <div class="menu-opt" onclick="actionSave()" style="color:#0f0">💾 Guardar Cambios</div>
+            <div class="menu-opt" onclick="actionFav()" style="color:#ff0">⭐ Marcar como Favorito</div>
+            <div class="menu-opt" onclick="actionDelete()" style="color:#f44">🗑️ Eliminar Comando</div>
+            <div class="menu-opt" onclick="actionSaveave()" style="color:#0f0">💾 Guardar Cambios</div>
             <div class="menu-opt" onclick="closePopup()">Cancelar</div>
         </div>
     </div>
