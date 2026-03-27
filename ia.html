@@ -3,371 +3,221 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VIPER-CORE OS v2.0</title>
+    <title>VIPER-CORE v3.0</title>
     <style>
-        :root { --bg: #000; --panel: #111; --text: #eee; --accent: #0f0; --msg-u: #333; --msg-v: #1a1a1a; --border: #333; }
-        body { background: var(--bg); color: var(--text); font-family: sans-serif; margin: 0; padding: 0; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
+        :root { --bg: #000; --panel: #111; --accent: #0f0; --text: #eee; --border: #333; }
+        body { background: var(--bg); color: var(--text); font-family: 'Courier New', monospace; margin: 0; display: flex; height: 100vh; overflow: hidden; }
         
-        /* BARRA SUPERIOR */
-        #top-bar { height: 60px; background: var(--bg); border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 15px; position: fixed; top: 0; width: 100%; box-sizing: border-box; z-index: 100; }
-        .icon-btn { color: var(--text); background: none; border: none; font-size: 24px; cursor: pointer; padding: 10px; margin-right: 15px; }
-        #chat-title { font-size: 18px; font-weight: bold; color: var(--accent); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-grow: 1; }
+        /* SIDEBAR MINIMALISTA */
+        #sidebar { width: 260px; background: var(--panel); position: fixed; left: -260px; height: 100%; transition: 0.3s; z-index: 1000; border-right: 1px solid var(--border); padding: 15px; box-sizing: border-box; }
+        #sidebar.open { left: 0; }
+        .nav-btn { width: 100%; background: #222; border: 1px solid var(--border); color: #fff; padding: 10px; border-radius: 4px; margin-bottom: 20px; cursor: pointer; text-transform: uppercase; font-size: 12px; }
+        #chat-list { overflow-y: auto; height: calc(100% - 100px); }
+        .chat-item { padding: 10px; border-bottom: 1px solid #222; font-size: 13px; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-        /* MENÚ LATERAL (SIDEBAR) */
-        #sidebar { background: var(--panel); width: 280px; position: fixed; top: 0; left: -280px; height: 100%; transition: 0.3s; display: flex; flex-direction: column; z-index: 1001; border-right: 1px solid var(--border); padding: 20px; box-sizing: border-box; }
-        #sidebar.abierto { left: 0; }
-        #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: none; z-index: 1000; }
-        #overlay.abierto { display: block; }
-        .sidebar-btn { width: 100%; background: #222; color: #fff; border: 1px solid var(--border); padding: 12px; border-radius: 8px; font-size: 16px; cursor: pointer; text-align: left; margin-bottom: 20px; }
-        .section-label { color: #888; font-size: 12px; text-transform: uppercase; margin-bottom: 10px; }
-        #chats-list { flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 5px; }
-        .chat-item { background: none; border: none; color: #fff; text-align: left; padding: 10px; border-radius: 5px; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 15px; }
-        .chat-item:active { background: #333; }
+        /* INTERFAZ PRINCIPAL */
+        #main { flex-grow: 1; display: flex; flex-direction: column; width: 100%; }
+        #header { height: 50px; border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 15px; justify-content: space-between; }
+        #chat-box { flex-grow: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
+        
+        .msg { max-width: 85%; padding: 10px 15px; border-radius: 2px; line-height: 1.4; position: relative; }
+        .user { align-self: flex-end; background: #222; border-right: 3px solid var(--accent); }
+        .viper { align-self: flex-start; background: #0a0a0a; border-left: 3px solid var(--accent); }
 
-        /* CONTENEDOR DE CHAT */
-        #chat-view { flex-grow: 1; display: flex; flex-direction: column; margin-top: 60px; height: calc(100vh - 60px); width: 100%; }
-        #chat-messages { flex-grow: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; scroll-behavior: smooth; }
-        .user-msg { align-self: flex-end; background: var(--msg-u); padding: 10px 15px; border-radius: 15px 15px 0 15px; max-width: 80%; }
-        .viper-msg { align-self: flex-start; background: var(--msg-v); padding: 10px 15px; border-radius: 15px 15px 15px 0; max-width: 80%; border: 1px solid var(--border); }
+        /* ZONA DE ENTRADA CON BOTONES DE NAVEGACIÓN */
+        #input-zone { padding: 15px; border-top: 1px solid var(--border); display: flex; gap: 8px; align-items: center; background: #000; }
+        #user-input { flex-grow: 1; background: #111; border: 1px solid var(--border); color: #0f0; padding: 12px; outline: none; font-size: 15px; }
+        .ctrl-btn { background: #111; border: 1px solid var(--border); color: #fff; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .ctrl-btn:active { background: var(--accent); color: #000; }
 
-        /* ZONA DE ENTRADA */
-        #input-area { background: var(--bg); padding: 15px; display: flex; align-items: center; border-top: 1px solid var(--border); position: sticky; bottom: 0; }
-        #user-input { flex-grow: 1; background: #222; border: 1px solid var(--border); color: #fff; padding: 12px; border-radius: 25px; outline: none; font-size: 16px; }
-        .round-btn { width: 45px; height: 45px; border-radius: 50%; border: none; font-size: 20px; margin-left: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-        #calc-btn { background: #222; color: var(--accent); }
-        #send-btn { background: #fff; color: #000; }
+        /* OVERLAY PARA EDITAR */
+        #edit-box { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 2000; align-items: center; justify-content: center; }
+        #edit-panel { background: #111; padding: 20px; width: 80%; border: 1px solid var(--accent); }
 
-        /* CALCULADORA FLOTANTE (CÓDIGOS) */
-        #calc-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; display: none; align-items: center; justify-content: center; }
-        #calc-panel { background: var(--panel); width: 90%; max-width: 320px; border-radius: 15px; border: 1px solid var(--border); padding: 20px; box-sizing: border-box; }
-        #calc-screen { width: 100%; height: 50px; background: #000; border: 1px solid #333; color: var(--accent); font-family: monospace; font-size: 24px; text-align: right; padding: 10px; box-sizing: border-box; margin-bottom: 15px; border-radius: 5px; }
-        #calc-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-        .calc-btn { background: #222; color: #fff; border: 1px solid var(--border); padding: 15px; font-size: 18px; border-radius: 10px; cursor: pointer; }
-        .calc-btn:active { background: #444; }
-        #accept-btn { grid-column: span 3; background: var(--accent); color: #000; font-weight: bold; text-transform: uppercase; }
-        #close-calc { color: #f44; background: none; border: none; font-size: 20px; cursor: pointer; position: absolute; top: 10px; right: 10px; }
-
-        /* CONTEXT MENU (BORRAR/RENOMBRAR) */
-        #context-menu { position: fixed; background: var(--panel); border: 1px solid var(--border); border-radius: 8px; display: none; z-index: 2100; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
-        .context-item { width: 100%; background: none; border: none; color: #fff; text-align: left; padding: 12px 20px; cursor: pointer; }
-        .context-item:active { background: #333; }
-        .danger { color: #f44; }
+        #overlay-bg { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 999; }
     </style>
 </head>
 <body>
 
-    <div id="overlay" onclick="toggleSidebar()"></div>
-    <div id="calc-overlay">
-        <div id="calc-panel" style="position:relative;">
-            <button id="close-calc" onclick="toggleCalc()">X</button>
-            <div id="calc-screen"></div>
-            <div id="calc-grid">
-                <button class="calc-btn" onclick="calcInput('1')">1</button>
-                <button class="calc-btn" onclick="calcInput('2')">2</button>
-                <button class="calc-btn" onclick="calcInput('3')">3</button>
-                <button class="calc-btn" onclick="calcInput('4')">4</button>
-                <button class="calc-btn" onclick="calcInput('5')">5</button>
-                <button class="calc-btn" onclick="calcInput('6')">6</button>
-                <button class="calc-btn" onclick="calcInput('7')">7</button>
-                <button class="calc-btn" onclick="calcInput('8')">8</button>
-                <button class="calc-btn" onclick="calcInput('9')">9</button>
-                <button class="calc-btn" onclick="calcInput('C')" style="color:#f44">C</button>
-                <button class="calc-btn" onclick="calcInput('0')">0</button>
-                <button class="calc-btn" id="accept-btn" onclick="acceptCode()">ACEPTAR</button>
-            </div>
-        </div>
-    </div>
-    
-    <div id="context-menu">
-        <button class="context-itemDanger" id="ctx-delete">Borrar Chat</button>
-        <button class="context-item" id="ctx-rename">Renombrar Chat</button>
-    </div>
-
+    <div id="overlay-bg" onclick="toggleMenu()"></div>
     <div id="sidebar">
-        <button class="sidebar-btn" onclick="createNewChat()">+ Nuevo chat</button>
-        <div class="section-label">Chats</div>
-        <div id="chats-list">
-            </div>
+        <button class="nav-btn" onclick="newChat()">+ New Session</button>
+        <div id="chat-list"></div>
     </div>
 
-    <div id="top-bar">
-        <button class="icon-btn" onclick="toggleSidebar()">&#9776;</button>
-        <div id="chat-title">VIPER Terminal</div>
-    </div>
-
-    <div id="chat-view">
-        <div id="chat-messages">
-            <div class="viper-msg"><b>VIPER:</b> En línea. Esperando comandos, Emiliano.</div>
+    <div id="edit-box">
+        <div id="edit-panel">
+            <p style="font-size:12px; color:var(--accent)">EDITAR ÚLTIMO MENSAJE:</p>
+            <textarea id="edit-input" style="width:100%; height:80px; background:#000; color:#fff; border:1px solid #333; margin-bottom:10px;"></textarea>
+            <button class="nav-btn" onclick="applyEdit()">GUARDAR CAMBIOS</button>
+            <button class="nav-btn" style="border-color:#f00" onclick="closeEdit()">CANCELAR</button>
         </div>
-        <div id="input-area">
-            <input type="text" id="user-input" placeholder="Comando..." autocomplete="off">
-            <button class="round-btn" id="calc-btn" onclick="toggleCalc()">&#128290;</button>
-            <button class="round-btn" id="send-btn" onclick="enviar()">&#10148;</button>
+    </div>
+
+    <div id="main">
+        <div id="header">
+            <span onclick="toggleMenu()" style="cursor:pointer">≡ TERMINAL</span>
+            <span id="header-title">VIPER CORE v3</span>
+            <span style="font-size:10px; color:var(--accent)">ONLINE</span>
+        </div>
+        <div id="chat-box"></div>
+        <div id="input-zone">
+            <button class="ctrl-btn" onclick="historyBack()" title="Atrás">«</button>
+            <input type="text" id="user-input" placeholder="Escribir comando..." autocomplete="off">
+            <button class="ctrl-btn" onclick="historyForward()" title="Adelante">»</button>
+            <button class="ctrl-btn" onclick="sendMessage()" style="border-color:var(--accent)">⌁</button>
         </div>
     </div>
 
     <script>
-        let VIPER = {
-            chats: [],
-            currentChatId: null,
-            calcData: "",
-            contextTargetId: null,
-            maxChats: 13
+        // --- DICCIONARIO Y LÓGICA DE VIPER ---
+        const Diccionario = ["hola", "como", "estas", "dia", "bien", "mal", "ayuda", "sistema", "viper", "emiliano", "bunker", "hardware", "software", "desarrollo", "delicioso"];
+        const Codigos = { "guayaba": "Delicioso.", "937": "Acceso a partida guardada de Blasphemous." };
+        
+        const RespuestasBase = {
+            "hola": ["hola. como esta su dia.", "Conexión activa. Saludos, Operador.", "VIPER listo."],
+            "bien": ["Es bueno saber que estes bien.", "Estado óptimo detectado."],
+            "depresion": ["¿Que le paso?, ¿se siente muy mal?"],
+            "default": ["Comando analizado. No hay registros exactos, pero proceso tu solicitud."]
         };
 
-        // --- SISTEMA DE GESTIÓN DE CHATS ---
-        function loadStorage() {
-            let data = localStorage.getItem('viper_data');
-            if (data) {
-                VIPER.chats = JSON.parse(data);
-                updateSidebar();
-            } else {
-                createNewChat("VIPER Terminal", true); // Primer chat por defecto
-            }
-        }
+        let currentSession = { id: Date.now(), title: "Sesión Nueva", messages: [] };
+        let historyIndex = -1;
 
-        function saveStorage() {
-            localStorage.setItem('viper_data', JSON.stringify(VIPER.chats));
-            updateSidebar();
-        }
+        // --- FUNCIONES CORE ---
+        function analyzeInput(input) {
+            let palabras = input.toLowerCase().split(" ");
+            let respuesta = "";
 
-        function createNewChat(title = "Nuevo Chat", isFirst = false) {
-            if (VIPER.chats.length >= VIPER.maxChats) {
-                alert("Límite de 13 chats alcanzado. Borra uno para continuar.");
-                return;
-            }
-            
-            let id = Date.now();
-            let newChat = {
-                id: id,
-                title: title,
-                messages: isFirst ? [] : [{ role: 'viper', text: '<b>VIPER:</b> Nueva sesión iniciada.' }]
-            };
-            VIPER.chats.unshift(newChat); // Chat más nuevo arriba
-            saveStorage();
-            if(!isFirst) switchChat(id);
-        }
-
-        function switchChat(id) {
-            VIPER.currentChatId = id;
-            let chat = VIPER.chats.find(c => c.id === id);
-            document.getElementById("chat-title").innerText = chat.title;
-            
-            let msgContainer = document.getElementById("chat-messages");
-            msgContainer.innerHTML = "";
-            chat.messages.forEach(m => {
-                let cls = m.role === 'user' ? 'user-msg' : 'viper-msg';
-                let tag = m.role === 'viper' ? '<b>VIPER:</b> ' : '';
-                msgContainer.innerHTML += `<div class="${cls}">${tag}${m.text}</div>`;
-            });
-            toggleSidebar(); // Cierra sidebar al cambiar
-            msgContainer.scrollTop = msgContainer.scrollHeight;
-        }
-
-        function updateSidebar() {
-            let list = document.getElementById("chats-list");
-            list.innerHTML = "";
-            VIPER.chats.forEach(c => {
-                let btn = document.createElement("button");
-                btn.className = "chat-item";
-                btn.innerText = c.title;
-                btn.onclick = () => switchChat(c.id);
-                // LONG PRESS (CONTEXT MENU)
-                let pressTimer;
-                btn.addEventListener('touchstart', (e) => {
-                    pressTimer = setTimeout(() => showContextMenu(e, c.id), 800);
-                });
-                btn.addEventListener('touchend', () => clearTimeout(pressTimer));
-                btn.addEventListener('contextmenu', (e) => e.preventDefault()); // Evitar menú por defecto
-                
-                list.appendChild(btn);
-            });
-        }
-
-        // --- INTERFAZ FLOTANTE (CALCULADORA DE CÓDIGOS) ---
-        function toggleCalc() {
-            let over = document.getElementById("calc-overlay");
-            over.style.display = over.style.display === "flex" ? "none" : "flex";
-            VIPER.calcData = "";
-            document.getElementById("calc-screen").innerText = "";
-        }
-
-        function calcInput(num) {
-            if (num === 'C') {
-                VIPER.calcData = "";
-            } else {
-                VIPER.calcData += num;
-            }
-            document.getElementById("calc-screen").innerText = VIPER.calcData;
-        }
-
-        function acceptCode() {
-            let code = VIPER.calcData;
-            if (!code) return;
-            
-            let res = baseDatosCodes[code] || { text: "CÓDIGO INVÁLIDO.", link: "" };
-            
-            toggleCalc(); // Cierra calc
-
-            // Muestra resultado en interfaz flotante (reuse viper message style)
-            let box = document.getElementById("chat-messages");
-            let linkHTML = res.link ? `<br><a href="${res.link}" target="_blank" style="color:var(--accent); text-decoration:underline;">Descargar</a>` : "";
-            box.innerHTML += `<div class="viper-msg"><b>ACCESO:</b> Código activado: ${res.text}${linkHTML}</div>`;
-            box.scrollTop = box.scrollHeight;
-            saveMessageToCurrentChat('viper', `CÓDIGO ACTIVADO: ${res.text}${linkHTML}`);
-        }
-
-        // --- CONTEXT MENU (BORRAR/RENOMBRAR) ---
-        function showContextMenu(e, chatId) {
-            VIPER.contextTargetId = chatId;
-            let menu = document.getElementById("context-menu");
-            let x = e.touches[0].clientX;
-            let y = e.touches[0].clientY;
-            
-            menu.style.display = "block";
-            menu.style.left = x + "px";
-            menu.style.top = y + "px";
-        }
-
-        document.getElementById("ctx-delete").onclick = () => {
-            VIPER.chats = VIPER.chats.filter(c => c.id !== VIPER.contextTargetId);
-            saveStorage();
-            if (VIPER.currentChatId === VIPER.contextTargetId) {
-                if(VIPER.chats.length > 0) switchChat(VIPER.chats[0].id);
-                else location.reload();
-            }
-            hideContextMenu();
-        };
-
-        document.getElementById("ctx-rename").onclick = () => {
-            let newName = prompt("Nuevo nombre para el chat:");
-            if (newName) {
-                let chat = VIPER.chats.find(c => c.id === VIPER.contextTargetId);
-                chat.title = newName;
-                saveStorage();
-                if (VIPER.currentChatId === VIPER.contextTargetId) document.getElementById("chat-title").innerText = newName;
-            }
-            hideContextMenu();
-        };
-
-        function hideContextMenu() { document.getElementById("context-menu").style.display = "none"; }
-        window.onclick = hideContextMenu; // Cierra menú al tocar fuera
-
-        // --- MOTOR DE VIPER (CEREBRO v2.0) ---
-        function enviar() {
-            const input = document.getElementById("user-input");
-            const val = input.value.trim();
-            if (val === "") return;
-
-            // Asegurar que hay un chat activo
-            if (!VIPER.currentChatId) switchChat(VIPER.chats[0].id);
-
-            let currentChat = VIPER.chats.find(c => c.id === VIPER.currentChatId);
-
-            // Actualizar título solo si es el primer mensaje del chat
-            if (currentChat.messages.length === 0) {
-                currentChat.title = val.toUpperCase().substring(0, 15) + (val.length > 15 ? "..." : "");
-                document.getElementById("chat-title").innerText = currentChat.title;
+            // 1. Revisar Códigos primero
+            for(let p of palabras) {
+                if(Codigos[p]) return Codigos[p];
             }
 
-            // Mostrar mensaje usuario
-            const msgContainer = document.getElementById("chat-messages");
-            msgContainer.innerHTML += `<div class="user-msg">${val}</div>`;
-            saveMessageToCurrentChat('user', val);
-
-            // Buscar respuesta con azar (%)
-            let resBase = buscarRespuestaAzar(val.toLowerCase());
-            
-            // Si la respuesta base contiene una pista de código, VIPER responde normal pero con la pista al final.
-            if(resBase.codeHint) resBase.text += ` ${resBase.codeHint}`;
-
-            setTimeout(() => {
-                msgContainer.innerHTML += `<div class="viper-msg"><b>VIPER:</b> ${resBase.text}</div>`;
-                saveMessageToCurrentChat('viper', resBase.text);
-                msgContainer.scrollTop = msgContainer.scrollHeight;
-            }, 500);
-
-            input.value = "";
-            saveStorage();
-        }
-
-        function saveMessageToCurrentChat(role, text) {
-            let chat = VIPER.chats.find(c => c.id === VIPER.currentChatId);
-            chat.messages.push({ role: role, text: text });
-        }
-
-        // --- BASE DE DATOS DE CONOCIMIENTO (VIPER CEREBRO) ---
-        // Con % de azar: Estructura: "palabra": { 80: "Respuesta comun", 10: "Rara", 10: "Pista"}
-        const baseDatosAzar = {
-            "hola": { 
-                60: { text: "hola. como esta su dia." },
-                30: { text: "Salodos Invitado!." },
-                10: { text: "Holis como andas por alla guapo", codeHint: "(Registrando actividad de red en 937)" } // Pista de código
-            },
-            "cual es tu genero": { 
-                60: { text: "Soy una mujer digital." },
-                30: { text: "fui hecha primero como uns IA pero decidieron darme vida y lo agradezco." },
-                10: { text: "te explico, soy EYU488 con 24 años y grafuada para ser tu asistente jaja", codeHint: "(Registrando actividad de red en 937)" } // Pista de código
-            },
-            "quien te creo": { 
-                60: { text: "directo al grano eh?, pues mis creadores son E2006 y GM-CORE." },
-                30: { text: "dos personas independientes, si encuentras errores en mi contacta con ellos para que lo solucionen." },
-                10: { text: "pues E2006 y GM-CORE me crearon y confian en mi para ser una IA hecha y derecha", codeHint: "(Registrando actividad de red en 937)" } // Pista de código
-            },
-            "nombre": { 100: { text: "Mi designación es VIPER-CORE. El Asistente de E2012." }},
-            "matematicas": { 100: { text: "El lenguaje universal. Mis procesadores están optimizados para el cálculo." }},
-            "tabla del 2": { 100: { text: "Aritmética básica: 2x1=2, 2x2=4, 2x3=6, 2x4=8, 2x5=10, 2x6=12, 2x7=14, 2x8=16, 2x9=18, 2x10=20." }},
-            "tabla del 5": { 100: { text: "Cálculo: 5x1=5, 5x2=10, 5x3=15, 5x4=20, 5x5=25, 5x6=30, 5x7=35, 5x8=40, 5x9=45, 5x10=50." }},
-            "informática": { 100: { text: "La base de mis sistemas. Hardware es lo físico, Software es lo lógico." }},
-            "hardware": { 100: { text: "Hardware: Componentes físicos. CPU (cerebro), RAM (memoria rapida), GPU (gráficos), Placa base, Almacenamiento." }},
-            "software": { 100: { text: "Software: Instrucciones y programas. Sistemas operativos (Android, Windows), Drivers, Aplicaciones, Juegos." }},
-            "desarrollo": { 100: { text: "Crear soluciones. Lenguajes: HTML/CSS/JS (como este búnker), Python (IA), C# (Juegos Unity), Java (Android)." }},
-            "celulares": { 100: { text: "Teléfonos inteligentes: Tu Samsung A03 usa Android, procesador ARM. Hardware muy condensado." }},
-            "consolas": { 100: { text: "Sistemas de juego cerrados: PS5, Xbox Series X, Nintendo Switch. Optimizadas para renderizado gráfico." }},
-            "pc": { 100: { text: "Computadora Personal: El sistema más abierto. Modular, potente. Base del desarrollo y gaming avanzado." }},
-            "depresión": { 100: { text: "¿Que le paso?, se encuentra un poco estable o se siente muy mal?" }}
-            "gracias": { 100: { text: "No ay de que, si nesesitas algo recuerda que estoy para ayudarte." }},
-            "jajaja": { 100: { text: "jaja de que estamos riendo?." }}
-        };
-
-        function buscarRespuestaAzar(msg) {
-            let res = { text: "Comando no identificado. VIPER requiere actualización de GM-CORE.", codeHint: "" };
-            for (let clave in baseDatosAzar) {
-                if (msg.includes(clave)) {
-                    let opciones = baseDatosAzar[clave];
-                    let r = Math.random() * 100;
-                    let acumulado = 0;
-                    for (let porc in opciones) {
-                        acumulado += parseInt(porc);
-                        if (r <= acumulado) {
-                            res = opciones[porc];
-                            break;
-                        }
-                    }
-                    break;
+            // 2. Análisis de Diccionario y Azar
+            for(let p of palabras) {
+                if(RespuestasBase[p]) {
+                    let opciones = RespuestasBase[p];
+                    return opciones[Math.floor(Math.random() * opciones.length)];
                 }
             }
-            return res;
+            return RespuestasBase["default"][0];
         }
 
-        // --- BASE DE DATOS DE CÓDIGOS SECRETOS ---
-        const baseDatosCodes = {
-            "937": { text: "Punto de guardado de Blasphemous detectado. Archivos con todo desbloqueado.", link: "https://ejemplo.com/blas_save.zip" }, // Reemplaza con link real
-            "123": { text: "Protocolo ALPHA: Mostrando imagen clasificada <br><img src='1234.jpg' style='width:100%; border-radius:5px; margin-top:10px; border: 1px solid #0f0;'>", link: "" },
-            "777": { text: "TRUCO DE DINERO INFINITO ACTIVADO.", link: "" }
-        };
+        function sendMessage() {
+            const input = document.getElementById("user-input");
+            const text = input.value.trim();
+            if(!text) return;
 
-        // --- UTILIDADES DE INTERFAZ ---
-        function toggleSidebar() {
-            document.getElementById("sidebar").classList.toggle("abierto");
-            document.getElementById("overlay").classList.toggle("abierto");
+            // Guardar en el historial de la sesión
+            currentSession.messages.push({ role: 'u', text: text });
+            if(currentSession.messages.length === 1) currentSession.title = text.substring(0, 15).toUpperCase();
+            
+            renderChat();
+            
+            // Respuesta de VIPER
+            setTimeout(() => {
+                let reply = analyzeInput(text);
+                currentSession.messages.push({ role: 'v', text: reply });
+                renderChat();
+                saveToStorage();
+            }, 600);
+
+            input.value = "";
+            historyIndex = currentSession.messages.length - 1;
         }
 
-        // Enter para enviar
-        document.getElementById("user-input").onkeypress = function(e) { if (e.key === 'Enter') enviar(); };
+        function renderChat() {
+            const box = document.getElementById("chat-box");
+            box.innerHTML = "";
+            currentSession.messages.forEach((m, index) => {
+                const div = document.createElement("div");
+                div.className = `msg ${m.role === 'u' ? 'user' : 'viper'}`;
+                div.innerHTML = m.role === 'v' ? `<b>VIPER:</b> ${m.text}` : m.text;
+                
+                // Evento para editar solo el ÚLTIMO mensaje del usuario
+                if(m.role === 'u' && index === currentSession.messages.length - (currentSession.messages[currentSession.messages.length-1].role === 'v' ? 2 : 1)) {
+                    let timer;
+                    div.onpointerdown = () => timer = setTimeout(() => openEdit(m.text, index), 800);
+                    div.onpointerup = () => clearTimeout(timer);
+                }
+                box.appendChild(div);
+            });
+            box.scrollTop = box.scrollHeight;
+            document.getElementById("header-title").innerText = currentSession.title;
+        }
 
-        // INICIO SISTEMA
-        window.onload = loadStorage;
+        // --- SISTEMA ATRÁS / ADELANTE (REBOBINAR) ---
+        function historyBack() {
+            if(currentSession.messages.length > 0) {
+                currentSession.messages.pop(); // Quita el último de VIPER
+                currentSession.messages.pop(); // Quita el último del Usuario
+                renderChat();
+            }
+        }
+
+        function historyForward() {
+            // En esta versión simplificada para A03, el "adelante" se reserva para futuras implementaciones de caché
+            alert("Protocolo de adelanto en desarrollo.");
+        }
+
+        // --- EDICIÓN ---
+        let editingIndex = -1;
+        function openEdit(text, index) {
+            editingIndex = index;
+            document.getElementById("edit-input").value = text;
+            document.getElementById("edit-box").style.display = "flex";
+        }
+
+        function applyEdit() {
+            let newText = document.getElementById("edit-input").value;
+            currentSession.messages[editingIndex].text = newText;
+            // Re-analizar respuesta de la IA para el nuevo texto
+            currentSession.messages[editingIndex + 1].text = analyzeInput(newText);
+            closeEdit();
+            renderChat();
+            saveToStorage();
+        }
+
+        function closeEdit() { document.getElementById("edit-box").style.display = "none"; }
+
+        // --- GESTIÓN DE INTERFAZ ---
+        function toggleMenu() {
+            document.getElementById("sidebar").classList.toggle("open");
+            document.getElementById("overlay-bg").style.display = 
+                document.getElementById("sidebar").classList.contains("open") ? "block" : "none";
+        }
+
+        function saveToStorage() {
+            let all = JSON.parse(localStorage.getItem('v_sessions') || "[]");
+            let idx = all.findIndex(s => s.id === currentSession.id);
+            if(idx > -1) all[idx] = currentSession; else all.unshift(currentSession);
+            if(all.length > 13) all.pop();
+            localStorage.setItem('v_sessions', JSON.stringify(all));
+            updateList();
+        }
+
+        function updateList() {
+            const list = document.getElementById("chat-list");
+            list.innerHTML = "";
+            let all = JSON.parse(localStorage.getItem('v_sessions') || "[]");
+            all.forEach(s => {
+                let d = document.createElement("div");
+                d.className = "chat-item";
+                d.innerText = s.title;
+                d.onclick = () => { currentSession = s; renderChat(); toggleMenu(); };
+                list.appendChild(d);
+            });
+        }
+
+        function newChat() {
+            currentSession = { id: Date.now(), title: "Nueva Sesión", messages: [] };
+            renderChat();
+            toggleMenu();
+        }
+
+        document.getElementById("user-input").onkeypress = (e) => { if(e.key === 'Enter') sendMessage(); };
+        window.onload = () => { updateList(); renderChat(); };
     </script>
 </body>
 </html>
