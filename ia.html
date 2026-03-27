@@ -3,221 +3,185 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VIPER-CORE v3.0</title>
+    <title>VIPER-CORE v3.5</title>
     <style>
-        :root { --bg: #000; --panel: #111; --accent: #0f0; --text: #eee; --border: #333; }
+        :root { --bg: #050505; --panel: #111; --accent: #0f0; --text: #eee; --border: #222; }
         body { background: var(--bg); color: var(--text); font-family: 'Courier New', monospace; margin: 0; display: flex; height: 100vh; overflow: hidden; }
         
-        /* SIDEBAR MINIMALISTA */
+        /* SIDEBAR */
         #sidebar { width: 260px; background: var(--panel); position: fixed; left: -260px; height: 100%; transition: 0.3s; z-index: 1000; border-right: 1px solid var(--border); padding: 15px; box-sizing: border-box; }
         #sidebar.open { left: 0; }
         .nav-btn { width: 100%; background: #222; border: 1px solid var(--border); color: #fff; padding: 10px; border-radius: 4px; margin-bottom: 20px; cursor: pointer; text-transform: uppercase; font-size: 12px; }
-        #chat-list { overflow-y: auto; height: calc(100% - 100px); }
-        .chat-item { padding: 10px; border-bottom: 1px solid #222; font-size: 13px; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-        /* INTERFAZ PRINCIPAL */
-        #main { flex-grow: 1; display: flex; flex-direction: column; width: 100%; }
-        #header { height: 50px; border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 15px; justify-content: space-between; }
-        #chat-box { flex-grow: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
+        /* INTERFAZ PRINCIPAL AJUSTADA */
+        #main { flex-grow: 1; display: flex; flex-direction: column; width: 100%; position: relative; }
+        #header { height: 45px; border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 15px; justify-content: space-between; background: #000; }
         
-        .msg { max-width: 85%; padding: 10px 15px; border-radius: 2px; line-height: 1.4; position: relative; }
-        .user { align-self: flex-end; background: #222; border-right: 3px solid var(--accent); }
-        .viper { align-self: flex-start; background: #0a0a0a; border-left: 3px solid var(--accent); }
+        #chat-box { flex-grow: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; padding-bottom: 80px; }
+        
+        /* MENSAJES ESTILO MINIMALISTA */
+        .msg { max-width: 80%; padding: 8px 12px; border-radius: 4px; font-size: 14px; position: relative; word-wrap: break-word; }
+        .user { align-self: flex-end; background: #1a1a1a; border-right: 2px solid var(--accent); color: #fff; }
+        .viper { align-self: flex-start; background: #000; border: 1px solid var(--border); border-left: 2px solid var(--accent); }
 
-        /* ZONA DE ENTRADA CON BOTONES DE NAVEGACIÓN */
-        #input-zone { padding: 15px; border-top: 1px solid var(--border); display: flex; gap: 8px; align-items: center; background: #000; }
-        #user-input { flex-grow: 1; background: #111; border: 1px solid var(--border); color: #0f0; padding: 12px; outline: none; font-size: 15px; }
-        .ctrl-btn { background: #111; border: 1px solid var(--border); color: #fff; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-        .ctrl-btn:active { background: var(--accent); color: #000; }
+        /* INTERFAZ DE ESCRITURA (ESTILO CAPTURA) */
+        #input-container { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); width: 95%; background: #111; border-radius: 25px; border: 1px solid var(--border); display: flex; align-items: center; padding: 5px 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+        #user-input { flex-grow: 1; background: transparent; border: none; color: #fff; padding: 10px; outline: none; font-size: 14px; }
+        .action-btn { background: transparent; border: none; color: var(--accent); font-size: 18px; cursor: pointer; padding: 0 8px; }
 
-        /* OVERLAY PARA EDITAR */
-        #edit-box { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 2000; align-items: center; justify-content: center; }
-        #edit-panel { background: #111; padding: 20px; width: 80%; border: 1px solid var(--accent); }
+        /* MENÚ EMERGENTE (POPUP) */
+        #popup-menu { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 3000; align-items: center; justify-content: center; }
+        .menu-content { background: #111; border: 1px solid var(--accent); width: 70%; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
 
-        #overlay-bg { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 999; }
+        #welcome-msg { text-align: center; margin-top: 50px; color: #555; }
+        #welcome-msg h2 { color: #fff; margin-bottom: 5px; }
     </style>
 </head>
 <body>
 
-    <div id="overlay-bg" onclick="toggleMenu()"></div>
     <div id="sidebar">
-        <button class="nav-btn" onclick="newChat()">+ New Session</button>
-        <div id="chat-list"></div>
+        <button class="nav-btn" onclick="newChat()">+ Nueva Sesión</button>
+        <div id="fav-list" style="margin-top:20px;">
+            <p style="font-size:10px; color:var(--accent)">★ FAVORITOS</p>
+            <div id="favorites-container"></div>
+        </div>
     </div>
 
-    <div id="edit-box">
-        <div id="edit-panel">
-            <p style="font-size:12px; color:var(--accent)">EDITAR ÚLTIMO MENSAJE:</p>
-            <textarea id="edit-input" style="width:100%; height:80px; background:#000; color:#fff; border:1px solid #333; margin-bottom:10px;"></textarea>
-            <button class="nav-btn" onclick="applyEdit()">GUARDAR CAMBIOS</button>
-            <button class="nav-btn" style="border-color:#f00" onclick="closeEdit()">CANCELAR</button>
+    <div id="popup-menu">
+        <div class="menu-content">
+            <button class="nav-btn" onclick="actionViper('fav')">FAVORITO</button>
+            <button class="nav-btn" onclick="actionViper('del')" style="color:#f44">BORRAR</button>
+            <button class="nav-btn" onclick="actionViper('save')">GUARDAR CAMBIOS</button>
+            <button class="nav-btn" onclick="closePopup()">CANCELAR</button>
         </div>
     </div>
 
     <div id="main">
         <div id="header">
-            <span onclick="toggleMenu()" style="cursor:pointer">≡ TERMINAL</span>
-            <span id="header-title">VIPER CORE v3</span>
-            <span style="font-size:10px; color:var(--accent)">ONLINE</span>
+            <span onclick="toggleMenu()" style="cursor:pointer">≡</span>
+            <span id="header-title">VIPER CORE</span>
+            <span onclick="showFavs()" style="color:var(--accent); font-size:12px; cursor:pointer">★</span>
         </div>
-        <div id="chat-box"></div>
-        <div id="input-zone">
-            <button class="ctrl-btn" onclick="historyBack()" title="Atrás">«</button>
-            <input type="text" id="user-input" placeholder="Escribir comando..." autocomplete="off">
-            <button class="ctrl-btn" onclick="historyForward()" title="Adelante">»</button>
-            <button class="ctrl-btn" onclick="sendMessage()" style="border-color:var(--accent)">⌁</button>
+
+        <div id="chat-box">
+            <div id="welcome-msg">
+                <h2>Hola, Invitado</h2>
+                <p>¿Dígame cuál es su pregunta?</p>
+            </div>
+        </div>
+
+        <div id="input-container">
+            <button class="action-btn" onclick="historyBack()">«</button>
+            <input type="text" id="user-input" placeholder="Responder" autocomplete="off">
+            <button class="action-btn" onclick="historyForward()">»</button>
+            <button class="action-btn" onclick="sendMessage()" style="font-weight:bold">⌁</button>
         </div>
     </div>
 
     <script>
-        // --- DICCIONARIO Y LÓGICA DE VIPER ---
-        const Diccionario = ["hola", "como", "estas", "dia", "bien", "mal", "ayuda", "sistema", "viper", "emiliano", "bunker", "hardware", "software", "desarrollo", "delicioso"];
-        const Codigos = { "guayaba": "Delicioso.", "937": "Acceso a partida guardada de Blasphemous." };
-        
-        const RespuestasBase = {
-            "hola": ["hola. como esta su dia.", "Conexión activa. Saludos, Operador.", "VIPER listo."],
-            "bien": ["Es bueno saber que estes bien.", "Estado óptimo detectado."],
-            "depresion": ["¿Que le paso?, ¿se siente muy mal?"],
-            "default": ["Comando analizado. No hay registros exactos, pero proceso tu solicitud."]
+        // --- ESPACIO PARA TUS NUEVAS PALABRAS Y CÓDIGOS ---
+        const DiccionarioPersonal = ["guayaba", "bunker", "pro", "épico"]; 
+        const MisCodigos = { 
+            "guayaba": "Delicioso.", 
+            "777": "ACCESO CONCEDIDO. Archivo clasificado activo." 
         };
 
-        let currentSession = { id: Date.now(), title: "Sesión Nueva", messages: [] };
-        let historyIndex = -1;
+        const Abecedario = "abcdefghijklmnopqrstuvwxyzáéíóúñ".split("");
+        
+        // --- MOTOR DE ANÁLISIS ---
+        const Respuestas = {
+            "hola": ["Hola, invitado. Sistema en línea.", "VIPER listo para procesar."],
+            "como estas": ["Me siento perfecta.", "Todo en orden. De eso no se preocupe."],
+            "default": ["Procesando datos... frase analizada mediante diccionario."]
+        };
 
-        // --- FUNCIONES CORE ---
-        function analyzeInput(input) {
-            let palabras = input.toLowerCase().split(" ");
-            let respuesta = "";
+        let currentSession = { messages: [] };
+        let selectedMsgIndex = -1;
+        let favoritos = JSON.parse(localStorage.getItem('v_favs') || "[]");
 
-            // 1. Revisar Códigos primero
-            for(let p of palabras) {
-                if(Codigos[p]) return Codigos[p];
+        function analyze(text) {
+            let low = text.toLowerCase();
+            if(MisCodigos[low]) return MisCodigos[low];
+            
+            // Lógica de búsqueda en diccionario
+            for(let key in Respuestas) {
+                if(low.includes(key)) return Respuestas[key][Math.floor(Math.random()*Respuestas[key].length)];
             }
-
-            // 2. Análisis de Diccionario y Azar
-            for(let p of palabras) {
-                if(RespuestasBase[p]) {
-                    let opciones = RespuestasBase[p];
-                    return opciones[Math.floor(Math.random() * opciones.length)];
-                }
-            }
-            return RespuestasBase["default"][0];
+            return "Comando analizado con el abecedario y diccionario. Resultado: Óptimo.";
         }
 
         function sendMessage() {
             const input = document.getElementById("user-input");
-            const text = input.value.trim();
-            if(!text) return;
-
-            // Guardar en el historial de la sesión
+            if(!input.value.trim()) return;
+            
+            document.getElementById("welcome-msg").style.display = "none";
+            let text = input.value;
             currentSession.messages.push({ role: 'u', text: text });
-            if(currentSession.messages.length === 1) currentSession.title = text.substring(0, 15).toUpperCase();
             
-            renderChat();
+            render();
             
-            // Respuesta de VIPER
             setTimeout(() => {
-                let reply = analyzeInput(text);
-                currentSession.messages.push({ role: 'v', text: reply });
-                renderChat();
-                saveToStorage();
-            }, 600);
-
+                let res = analyze(text);
+                currentSession.messages.push({ role: 'v', text: res });
+                render();
+            }, 500);
             input.value = "";
-            historyIndex = currentSession.messages.length - 1;
         }
 
-        function renderChat() {
+        function render() {
             const box = document.getElementById("chat-box");
             box.innerHTML = "";
-            currentSession.messages.forEach((m, index) => {
-                const div = document.createElement("div");
+            currentSession.messages.forEach((m, i) => {
+                let div = document.createElement("div");
                 div.className = `msg ${m.role === 'u' ? 'user' : 'viper'}`;
-                div.innerHTML = m.role === 'v' ? `<b>VIPER:</b> ${m.text}` : m.text;
+                div.innerText = m.role === 'v' ? `VIPER: ${m.text}` : m.text;
                 
-                // Evento para editar solo el ÚLTIMO mensaje del usuario
-                if(m.role === 'u' && index === currentSession.messages.length - (currentSession.messages[currentSession.messages.length-1].role === 'v' ? 2 : 1)) {
-                    let timer;
-                    div.onpointerdown = () => timer = setTimeout(() => openEdit(m.text, index), 800);
-                    div.onpointerup = () => clearTimeout(timer);
+                // Mantener presionado en VIPER
+                if(m.role === 'v') {
+                    let t;
+                    div.onpointerdown = () => t = setTimeout(() => openPopup(i), 800);
+                    div.onpointerup = () => clearTimeout(t);
                 }
                 box.appendChild(div);
             });
             box.scrollTop = box.scrollHeight;
-            document.getElementById("header-title").innerText = currentSession.title;
         }
 
-        // --- SISTEMA ATRÁS / ADELANTE (REBOBINAR) ---
-        function historyBack() {
-            if(currentSession.messages.length > 0) {
-                currentSession.messages.pop(); // Quita el último de VIPER
-                currentSession.messages.pop(); // Quita el último del Usuario
-                renderChat();
+        // --- ACCIONES DEL POPUP ---
+        function openPopup(index) {
+            selectedMsgIndex = index;
+            document.getElementById("popup-menu").style.display = "flex";
+        }
+
+        function closePopup() { document.getElementById("popup-menu").style.display = "none"; }
+
+        function actionViper(type) {
+            let msg = currentSession.messages[selectedMsgIndex];
+            if(type === 'del') {
+                msg.text = "lo lamento mucho si no fui de ayuda";
+                msg.deleted = true;
+            } else if(type === 'fav') {
+                if(!favoritos.includes(msg.text)) favoritos.push(msg.text);
+            } else if(type === 'save') {
+                localStorage.setItem('v_favs', JSON.stringify(favoritos));
+                alert("Cambios guardados en el búnker.");
             }
+            closePopup();
+            render();
+            updateFavList();
         }
 
-        function historyForward() {
-            // En esta versión simplificada para A03, el "adelante" se reserva para futuras implementaciones de caché
-            alert("Protocolo de adelanto en desarrollo.");
+        function updateFavList() {
+            const cont = document.getElementById("favorites-container");
+            cont.innerHTML = favoritos.map(f => `<div class="chat-item" style="font-size:10px; border-bottom:1px solid #222; padding:5px;">${f}</div>`).join("");
         }
 
-        // --- EDICIÓN ---
-        let editingIndex = -1;
-        function openEdit(text, index) {
-            editingIndex = index;
-            document.getElementById("edit-input").value = text;
-            document.getElementById("edit-box").style.display = "flex";
-        }
+        function historyBack() { currentSession.messages.pop(); currentSession.messages.pop(); render(); }
+        function toggleMenu() { document.getElementById("sidebar").classList.toggle("open"); }
+        function newChat() { location.reload(); }
 
-        function applyEdit() {
-            let newText = document.getElementById("edit-input").value;
-            currentSession.messages[editingIndex].text = newText;
-            // Re-analizar respuesta de la IA para el nuevo texto
-            currentSession.messages[editingIndex + 1].text = analyzeInput(newText);
-            closeEdit();
-            renderChat();
-            saveToStorage();
-        }
-
-        function closeEdit() { document.getElementById("edit-box").style.display = "none"; }
-
-        // --- GESTIÓN DE INTERFAZ ---
-        function toggleMenu() {
-            document.getElementById("sidebar").classList.toggle("open");
-            document.getElementById("overlay-bg").style.display = 
-                document.getElementById("sidebar").classList.contains("open") ? "block" : "none";
-        }
-
-        function saveToStorage() {
-            let all = JSON.parse(localStorage.getItem('v_sessions') || "[]");
-            let idx = all.findIndex(s => s.id === currentSession.id);
-            if(idx > -1) all[idx] = currentSession; else all.unshift(currentSession);
-            if(all.length > 13) all.pop();
-            localStorage.setItem('v_sessions', JSON.stringify(all));
-            updateList();
-        }
-
-        function updateList() {
-            const list = document.getElementById("chat-list");
-            list.innerHTML = "";
-            let all = JSON.parse(localStorage.getItem('v_sessions') || "[]");
-            all.forEach(s => {
-                let d = document.createElement("div");
-                d.className = "chat-item";
-                d.innerText = s.title;
-                d.onclick = () => { currentSession = s; renderChat(); toggleMenu(); };
-                list.appendChild(d);
-            });
-        }
-
-        function newChat() {
-            currentSession = { id: Date.now(), title: "Nueva Sesión", messages: [] };
-            renderChat();
-            toggleMenu();
-        }
-
-        document.getElementById("user-input").onkeypress = (e) => { if(e.key === 'Enter') sendMessage(); };
-        window.onload = () => { updateList(); renderChat(); };
+        document.getElementById("user-input").onkeypress = (e) => e.key === 'Enter' && sendMessage();
+        window.onload = updateFavList;
     </script>
 </body>
 </html>
