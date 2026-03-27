@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VIPER-CORE v4.0</title>
+    <title>VIPER-CORE v4.1</title>
     <style>
         :root { --bg: #000; --panel: #111; --accent: #0f0; --text: #eee; --border: #333; }
         body { background: var(--bg); color: var(--text); font-family: sans-serif; margin: 0; display: flex; height: 100vh; overflow: hidden; }
@@ -20,7 +20,7 @@
         #main { flex-grow: 1; display: flex; flex-direction: column; width: 100%; position: relative; }
         #header { height: 60px; padding: 0 15px; display: flex; align-items: center; border-bottom: 1px solid var(--border); justify-content: space-between; }
         
-        #chat-box { flex-grow: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 12px; padding-bottom: 100px; }
+        #chat-box { flex-grow: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 12px; padding-bottom: 120px; }
         .welcome-msg { text-align: center; margin-top: 40px; color: #888; }
         .welcome-msg h2 { color: #fff; margin-bottom: 5px; }
 
@@ -28,10 +28,17 @@
         .user { align-self: flex-end; background: #333; color: #fff; border-bottom-right-radius: 2px; }
         .viper { align-self: flex-start; background: #111; border: 1px solid var(--border); border-bottom-left-radius: 2px; }
 
-        /* BARRA DE RESPUESTA MINIMALISTA (CORREGIDA PARA PANTALLA PEQUEÑA) */
-        #input-container { position: absolute; bottom: 0; width: 100%; padding: 10px; box-sizing: border-box; background: linear-gradient(transparent, #000 20%); }
-        #input-area { background: #222; border-radius: 25px; display: flex; align-items: center; padding: 5px 15px; border: 1px solid #444; gap: 10px; }
-        #user-input { flex-grow: 1; background: transparent; border: none; color: #fff; padding: 10px 0; outline: none; font-size: 16px; }
+        /* BARRA DE RESPUESTA ELEVADA PARA SAMSUNG A03 */
+        #input-container { 
+            position: absolute; 
+            bottom: 0; 
+            width: 100%; 
+            padding: 10px 10px 25px 10px; /* Aumenté el espacio de abajo (25px) */
+            box-sizing: border-box; 
+            background: linear-gradient(transparent, #000 30%); 
+        }
+        #input-area { background: #222; border-radius: 25px; display: flex; align-items: center; padding: 5px 15px; border: 1px solid #444; gap: 10px; box-shadow: 0 -5px 15px rgba(0,0,0,0.5); }
+        #user-input { flex-grow: 1; background: transparent; border: none; color: #fff; padding: 12px 0; outline: none; font-size: 16px; }
         
         .action-btn { background: none; border: none; color: #fff; font-size: 20px; cursor: pointer; padding: 5px; opacity: 0.7; }
         .send-btn { color: var(--accent); opacity: 1; font-size: 24px; }
@@ -99,14 +106,14 @@
     </div>
 
     <script>
-        // --- 1. CONFIGURACIÓN PERSONALIZABLE (METE AQUÍ TUS COSAS) ---
+        // --- 1. CONFIGURACIÓN PERSONALIZABLE ---
         const Diccionario = ["hola", "como", "estas", "bien", "mal", "delicioso", "viper", "bunker", "codigo", "ayuda", "sistema"];
-        const NuevasPalabras = []; // <-- METE TUS NUEVAS PALABRAS AQUÍ
+        const NuevasPalabras = []; 
         
         const Codigos = { 
             "guayaba": "Delicioso.", 
             "937": "Acceso concedido al bunker.",
-            "secret0": "Modo desarrollador activado." // <-- METE TUS NUEVOS CÓDIGOS AQUÍ
+            "secret0": "Modo desarrollador activado."
         };
 
         const RespuestasIA = {
@@ -122,11 +129,7 @@
         // --- 2. LÓGICA DE PROCESAMIENTO ---
         function analyzeInput(input) {
             let palabras = input.toLowerCase().split(" ");
-            
-            // Buscar Códigos
             for(let p of palabras) { if(Codigos[p]) return Codigos[p]; }
-            
-            // Buscar en Diccionario Expandido
             for(let p of palabras) {
                 if(RespuestasIA[p]) {
                     let r = RespuestasIA[p];
@@ -166,7 +169,6 @@
                 div.className = `msg ${m.role === 'u' ? 'user' : 'viper'}`;
                 div.innerText = m.text;
                 
-                // Menú emergente al mantener apretado (solo VIPER)
                 if(m.role === 'v' && !m.deleted) {
                     let timer;
                     div.onpointerdown = () => timer = setTimeout(() => openPopup(index), 700);
@@ -178,7 +180,6 @@
             document.getElementById("header-title").innerText = currentSession.title;
         }
 
-        // --- 4. ACCIONES DEL MENÚ EMERGENTE ---
         function openPopup(index) {
             selectedMsgIndex = index;
             document.getElementById("popup-menu").style.display = "flex";
@@ -207,15 +208,11 @@
             closePopup();
         }
 
-        // --- 5. GESTIÓN DE CHATS Y ANCLADO ---
         function saveToStorage() {
             let all = JSON.parse(localStorage.getItem('v_sessions_v4') || "[]");
             let idx = all.findIndex(s => s.id === currentSession.id);
             if(idx > -1) all[idx] = currentSession; else all.unshift(currentSession);
-            
-            // Lógica de orden: Anclados primero, luego por fecha
             all.sort((a, b) => (b.pinned - a.pinned));
-            
             if(all.length > 13) all.pop();
             localStorage.setItem('v_sessions_v4', JSON.stringify(all));
             updateList();
@@ -242,7 +239,6 @@
             updateList();
         }
 
-        // --- 6. FAVORITOS Y NAVEGACIÓN ---
         function openFavs() {
             const list = document.getElementById("fav-list");
             list.innerHTML = "";
@@ -264,4 +260,5 @@
         window.onload = () => { updateList(); };
     </script>
 </body>
-</html>
+    </html>
+    
