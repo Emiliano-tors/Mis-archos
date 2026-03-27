@@ -1,83 +1,15 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IA VIPER - Terminal Pro</title>
-    <style>
-        body { background-color: #000; color: #fff; font-family: sans-serif; margin: 0; padding: 0; display: flex; height: 100vh; overflow: hidden; }
-        
-        /* MENÚ LATERAL */
-        #menu-lateral { background-color: #111; width: 280px; position: fixed; top: 0; left: -280px; height: 100%; transition: 0.3s; display: flex; flex-direction: column; padding: 20px; box-sizing: border-box; z-index: 1000; border-right: 1px solid #333; }
-        #menu-lateral.abierto { left: 0; }
-        #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: none; z-index: 999; }
-        #overlay.abierto { display: block; }
-
-        .titulo-seccion { color: #888; font-size: 12px; text-transform: uppercase; margin: 15px 0 10px 0; font-weight: bold; }
-        .link-menu { display: block; color: #fff; text-decoration: none; padding: 12px; border-radius: 8px; font-size: 15px; }
-        .link-menu:active { background-color: #333; }
-
-        /* BARRA SUPERIOR */
-        #barra-superior { height: 60px; background: #000; display: flex; align-items: center; padding: 0 15px; border-bottom: 1px solid #333; position: fixed; top: 0; width: 100%; box-sizing: border-box; z-index: 998; }
-        #boton-menu { color: #fff; font-size: 24px; background: none; border: none; cursor: pointer; margin-right: 20px; }
-        #titulo-header { font-size: 18px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-grow: 1; }
-
-        /* CHAT */
-        #contenedor-chat { flex-grow: 1; display: flex; flex-direction: column; margin-top: 60px; height: calc(100vh - 60px); width: 100%; }
-        #chat-box { flex-grow: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
-        .user-msg { align-self: flex-end; background: #333; padding: 10px 15px; border-radius: 15px 15px 0 15px; max-width: 80%; }
-        .bot-msg { align-self: flex-start; background: #1a1a1a; padding: 10px 15px; border-radius: 15px 15px 15px 0; max-width: 80%; border: 1px solid #333; font-size: 15px; line-height: 1.4; }
-
-        /* ENTRADA AJUSTADA PARA COMODIDAD */
-        #zona-entrada { background: #000; padding: 15px 15px 25px 15px; display: flex; align-items: center; border-top: 1px solid #333; }
-        #user-input { flex-grow: 1; background: #222; border: none; color: #fff; padding: 12px 18px; border-radius: 25px; outline: none; font-size: 16px; }
-        #boton-enviar { background: #fff; color: #000; border: none; padding: 10px 15px; border-radius: 50%; font-size: 18px; margin-left: 10px; cursor: pointer; }
-    </style>
-</head>
-<body>
-
-    <div id="overlay" onclick="toggleMenu()"></div>
-
-    <div id="menu-lateral">
-        <a href="index.html" class="link-menu" style="border-bottom: 1px solid #333; margin-bottom: 10px;">◀ Volver al Búnker</a>
-        <div class="titulo-seccion">Recientes</div>
-        <a href="ia.html" class="link-menu">Nueva sesión</a>
-        <div class="titulo-seccion">Búnker ZK</div>
-        <a href="cine.html" class="link-menu">Cine 1</a>
-        <a href="cine2.html" class="link-menu">Cine 2</a>
-        <a href="cine3.html" class="link-menu">Cine 3</a>
-        <a href="cine4.html" class="link-menu">Cine 4</a>
-        <a href="cine5.html" class="link-menu">Cine 5</a>
-        <a href="hekappo.html" class="link-menu">Hekapoo - Cómic</a>
-    </div>
-
-    <div id="barra-superior">
-        <button id="boton-menu" onclick="toggleMenu()">&#9776;</button>
-        <div id="titulo-header">Terminal ZK</div>
-    </div>
-
-    <div id="contenedor-chat">
-        <div id="chat-box">
-            <div id="msj-guia" style="color: #666; text-align: center; margin-top: 20px; font-size: 14px;">Inicia una conversación con VIPER</div>
-        </div>
-        <div id="zona-entrada">
-            <input type="text" id="user-input" placeholder="Escribir mensaje..." autocomplete="off">
-            <button id="boton-enviar" onclick="enviarMensaje()">&#10148;</button>
-        </div>
-    </div>
-
     <script>
         function toggleMenu() {
             document.getElementById("menu-lateral").classList.toggle("abierto");
             document.getElementById("overlay").classList.toggle("abierto");
         }
 
-        // --- DICCIONARIO INTELIGENTE CON RESPUESTAS MÚLTIPLES ---
+        // --- DICCIONARIO INTELIGENTE ---
         const baseDatos = {
             "hola": [
                 "VIPER-CORE en línea. Saludos, Operador.",
-                "Hola. Como va todo Operador?",
-                "Saludos Operador."  
+                "Hola. ¿Cómo va todo, Operador?",
+                "Saludos, Operador."  
             ],
             "nombre": [
                 "VIPER.",
@@ -89,7 +21,7 @@
             ],
             "creador": [
                 "Fui diseñada por el equipo de desarrollo: E2012 y GM-CORE.",
-                "E2012 y GM-CORE son los desarrolladores que me crean."
+                "E2012 y GM-CORE son los desarrolladores que me crearon."
             ],
             "estás bien": [
                 "Me siento perfecta.",
@@ -103,39 +35,45 @@
             ],
             "matemáticas": ["El lenguaje universal. Estoy listo para realizar cálculos."],
             "937": [
-                "Dame unos segundos!. Mostrando archivo clasificado: <br><img src='1234.jpg' style='width:100%; border-radius:10px; margin-top:10px; border: 1px solid #0f0;'>"
+                "¡Dame unos segundos! Mostrando archivo clasificado: <br><img src='1234.jpg' style='width:100%; border-radius:10px; margin-top:10px; border: 1px solid #0f0;'>"
             ],
             "adiós": ["Cerrando sesión. Cuídate, Operador.", "VIPER fuera. Mantente a salvo."]
         };
 
         function enviarMensaje() {
-            let input = document.getElementById("user-input");
-            let chatBox = document.getElementById("chat-box");
-            let header = document.getElementById("titulo-header");
+            const input = document.getElementById("user-input");
+            const chatBox = document.getElementById("chat-box");
+            const header = document.getElementById("titulo-header");
+            const msjGuia = document.getElementById("msj-guia");
+            
             let texto = input.value.trim();
-            let msgMin = texto.toLowerCase();
-
             if (texto === "") return;
-            if(document.getElementById("msj-guia")) document.getElementById("msj-guia").remove();
 
-            // Título que combina
+            // Quitar mensaje de guía de forma segura
+            if (msjGuia) {
+                msjGuia.style.display = "none";
+            }
+
+            // Actualizar título
             let palabras = texto.split(' ');
             header.innerText = palabras.slice(0, 2).join(' ').toUpperCase() + "...";
 
+            // Mostrar mensaje del usuario
             chatBox.innerHTML += `<div class="user-msg">${texto}</div>`;
             
-            // --- BUSCADOR CON AZAR ---
+            let msgMin = texto.toLowerCase();
             let respuestaFinal = "Dato no registrado. VIPER-CORE requiere actualización de E2012.";
 
+            // Buscar respuesta
             for (let clave in baseDatos) {
                 if (msgMin.includes(clave)) {
                     let opciones = baseDatos[clave];
-                    // Aquí ocurre la magia del azar:
                     respuestaFinal = opciones[Math.floor(Math.random() * opciones.length)];
                     break;
                 }
             }
 
+            // Respuesta de VIPER con delay
             setTimeout(() => {
                 chatBox.innerHTML += `<div class="bot-msg"><b>VIPER:</b> ${respuestaFinal}</div>`;
                 chatBox.scrollTop = chatBox.scrollHeight;
@@ -144,9 +82,11 @@
             input.value = "";
         }
 
-        document.getElementById("user-input").onkeypress = function(e) {
-            if (e.key === 'Enter') enviarMensaje();
-        };
+        // Escuchar tecla Enter
+        document.getElementById("user-input").addEventListener("keypress", function(e) {
+            if (e.key === 'Enter') {
+                enviarMensaje();
+            }
+        });
     </script>
-</body>
-</html>
+    
