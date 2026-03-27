@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IA ZK - Terminal Pro</title>
+    <title>IA VIPER - Terminal Pro</title>
     <style>
         body { background-color: #000; color: #fff; font-family: sans-serif; margin: 0; padding: 0; display: flex; height: 100vh; overflow: hidden; }
         
@@ -58,7 +58,7 @@
 
     <div id="contenedor-chat">
         <div id="chat-box">
-            <div id="msj-guia" style="color: #666; text-align: center; margin-top: 20px; font-size: 14px;">Inicia una conversación con el núcleo ZK</div>
+            <div id="msj-guia" style="color: #666; text-align: center; margin-top: 20px; font-size: 14px;">Inicia una conversación con VIPER</div>
         </div>
         <div id="zona-entrada">
             <input type="text" id="user-input" placeholder="Escribir mensaje..." autocomplete="off">
@@ -75,18 +75,14 @@
         // --- EL DICCIONARIO DE RESPUESTAS ---
         // Aquí puedes agregar todas las que quieras siguiendo el formato "palabra": "respuesta",
         const baseDatos = {
-            "hola": "hola. como esta su dia.",
-            "quien eres": "Mi nombre es Viper, y si me lo permite su asistente.",
-            "estás bien": "La verdad desconozco mis sentimientos, pero diria que siento mas o menos.",
-            "gracias": "No ay de que, si nesesitas algo recuerda qud estoy para ayudarte.",
-            "bueno tengo que irme": "Exelente, has lo que tengas que hacer y si tienes duda de algo, aqui estoy yo jaja.",
-            "adios": "Chao.",
-            "Tengo depresión": "Que le paso?, se encuentra un poco estable o se siente muy ma.",
-            "mal": "como le ayudaría para que se sienta mejor?.",
-            "estatus": "sitio web: Seguro. Archivos: Encriptados. Conexión: Activa.",
+            "hola": "Conexión establecida. Terminal ZK operativa. Esperando órdenes.",
+            "quien eres": "Soy el núcleo de procesamiento de este búnker. Mi función es gestionar datos y archivos.",
+            "estás bien": "Sistemas estables. Temperatura del procesador dentro de los límites normales.",
+            "gracias": "No es necesario. Solo cumplo con mi protocolo.",
+            "adios": "Sesión terminada. Entrando en modo de espera.",
+            "estatus": "Búnker: Seguro. Archivos: Encriptados. Conexión: Activa.",
             "que sabes": "Tengo acceso a los registros del búnker, pero mi base de datos sobre usuarios externos está vacía.",
-            "jajaja": "jaja."
-            "Bien": "es bueno saber que estes bien."
+            "jajaja": "Humor detectado. Registrando reacción en los logs del sistema."
         };
 
         function enviarMensaje() {
