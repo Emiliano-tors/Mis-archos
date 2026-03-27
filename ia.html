@@ -2,121 +2,94 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Base de Pruebas v1.2</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>VIPER-CORE V1</title>
     <style>
-        /* Estilos básicos para que se vea mejor en tu celular */
-        body { 
-            background: #000; 
-            color: #fff; 
-            font-family: sans-serif; 
-            margin: 0; 
-            display: flex; 
-            flex-direction: column; 
-            height: 100vh; 
-        }
+        :root { --bg: #000; --accent: #0f0; --panel: #0a0a0a; --border: #1a1a1a; --user-msg: #161616; --text: #d1d1d1; }
+        body { background: var(--bg); color: var(--text); font-family: sans-serif; margin: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
         
-        #chat { 
-            flex: 1; 
-            overflow-y: auto; 
-            padding: 15px; 
-            display: flex; 
-            flex-direction: column; 
-            gap: 10px; 
-        }
+        /* --- CABECERA --- */
+        header { height: 60px; padding: 0 15px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); background: #000; }
+        .menu-t { font-size: 24px; cursor: pointer; color: var(--accent); font-weight: bold; }
+        .title { font-weight: bold; letter-spacing: 2px; font-size: 14px; }
 
-        .mensaje { 
-            padding: 10px 15px; 
-            border-radius: 10px; 
-            max-width: 80%; 
-            font-size: 16px; 
-        }
+        /* --- AREA DE CHAT --- */
+        #chat-box { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; padding-bottom: 100px; }
+        .msg { max-width: 85%; padding: 12px 16px; border-radius: 15px; font-size: 15px; line-height: 1.4; word-wrap: break-word; }
+        .u { align-self: flex-end; background: var(--user-msg); color: #fff; border-bottom-right-radius: 2px; }
+        .v { align-self: flex-start; background: #0a0a0a; border: 1px solid var(--border); color: var(--accent); border-bottom-left-radius: 2px; }
 
-        .u { 
-            align-self: flex-end; 
-            background: #222; 
-            color: #0f0; 
-        }
+        /* --- ENTRADA --- */
+        #input-container { position: fixed; bottom: 0; width: 100%; padding: 15px; box-sizing: border-box; background: #000; border-top: 1px solid var(--border); }
+        #input-area { background: #111; border-radius: 25px; display: flex; align-items: center; padding: 5px 15px; border: 1px solid #222; }
+        #user-input { flex-grow: 1; background: transparent; border: none; color: #fff; padding: 12px 0; outline: none; font-size: 16px; }
+        .send-btn { background: none; border: none; color: var(--accent); font-weight: bold; cursor: pointer; padding: 5px 10px; font-size: 18px; }
 
-        .i { 
-            align-self: flex-start; 
-            background: #111; 
-            border: 1px solid #333; 
-            color: #fff; 
-        }
-
-        #input-area { 
-            padding: 15px; 
-            background: #0a0a0a; 
-            display: flex; 
-            gap: 10px; 
-            border-top: 1px solid #222; 
-        }
-
-        #in { 
-            flex: 1; 
-            padding: 12px; 
-            background: #1a1a1a; 
-            border: 1px solid #333; 
-            color: #fff; 
-            border-radius: 5px; 
-            outline: none; 
-        }
-
-        button { 
-            padding: 10px 20px; 
-            background: #0f0; 
-            color: #000; 
-            border: none; 
-            border-radius: 5px; 
-            font-weight: bold; 
-        }
+        /* --- SIDEBAR --- */
+        #sidebar { width: 260px; background: var(--panel); position: fixed; left: -260px; height: 100%; transition: 0.3s; z-index: 2000; border-right: 1px solid var(--border); padding: 20px; box-sizing: border-box; }
+        #sidebar.open { left: 0; }
+        .nav-btn { width: 100%; background: #111; border: 1px solid var(--border); color: #fff; padding: 12px; margin-bottom: 10px; cursor: pointer; text-align: left; font-size: 12px; font-weight: bold; }
     </style>
 </head>
 <body>
 
-    <div id="chat">
-        </div>
+    <div id="sidebar">
+        <div style="color:red; text-align:right; cursor:pointer; font-weight:bold;" onclick="toggleMenu()">X</div>
+        <div style="font-size: 10px; color: var(--accent); margin-bottom: 20px;">VIPER-CORE V1</div>
+        <button class="nav-btn" onclick="location.reload()">REINICIAR LOG</button>
+        <div id="history"></div>
+    </div>
 
-    <div id="input-area">
-        <input type="text" id="in" placeholder="Escribir...">
-        <button onclick="enviar()">Enviar</button>
+    <header>
+        <div class="menu-t" onclick="toggleMenu()">=</div>
+        <div class="title">VIPER SYSTEM</div>
+        <div style="width:10px; height:10px; background:var(--accent); border-radius:50%;"></div>
+    </header>
+
+    <div id="chat-box">
+        <div class="msg v">SISTEMA ONLINE. ESPERANDO COMANDO.</div>
+    </div>
+
+    <div id="input-container">
+        <div id="input-area">
+            <input type="text" id="user-input" placeholder="Escribir..." autocomplete="off">
+            <button class="send-btn" onclick="enviar()">></button>
+        </div>
     </div>
 
     <script>
-        // Mantenemos la lógica simple que ya te funcionó
+        // MOTOR BASICO QUE SI FUNCIONA
         const respuestas = {
-            "hola": "Hola.",
-            "test": "Sistema operativo."
+            "hola": "Hola, Operador. Sistemas listos.",
+            "status": "Bunker asegurado. Energia al 100%.",
+            "test": "Prueba de segundo mensaje exitosa."
         };
 
         function enviar() {
-            const campo = document.getElementById("in");
-            const texto = campo.value.trim().toLowerCase();
-            const caja = document.getElementById("chat");
+            const input = document.getElementById("user-input");
+            const caja = document.getElementById("chat-box");
+            const val = input.value.trim().toLowerCase();
 
-            if(!texto) return;
+            if(!val) return;
 
-            // Mensaje del usuario
-            caja.innerHTML += `<div class="mensaje u">${texto}</div>`;
+            // Mostrar mensaje tuyo
+            caja.innerHTML += `<div class="msg u">${val}</div>`;
+            input.value = "";
+            caja.scrollTop = caja.scrollHeight;
 
-            // Respuesta de la IA
+            // Respuesta automatica
             setTimeout(() => {
-                const r = respuestas[texto] || "Recibido.";
-                caja.innerHTML += `<div class="mensaje i">${r}</div>`;
+                const r = respuestas[val] || "Comando recibido. VIPER activo.";
+                caja.innerHTML += `<div class="msg v">${r}</div>`;
                 caja.scrollTop = caja.scrollHeight;
-            }, 150);
-
-            campo.value = "";
-            campo.focus();
+            }, 200);
         }
 
-        // Para que puedas enviar con el "Enter" del teclado
-        document.getElementById("in").addEventListener("keypress", function(e) {
-            if (e.key === "Enter") {
-                enviar();
-            }
-        });
+        function toggleMenu() { document.getElementById("sidebar").classList.toggle("open"); }
+
+        document.getElementById("user-input").onkeypress = (e) => {
+            if(e.key === 'Enter') enviar();
+        };
     </script>
 </body>
 </html>
