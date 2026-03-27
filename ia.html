@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IA ZK - Terminal Pro</title>
+    <title>IA Viper</title>
     <style>
         body { background-color: #000; color: #fff; font-family: sans-serif; margin: 0; padding: 0; display: flex; height: 100vh; overflow: hidden; }
         
@@ -26,10 +26,10 @@
         #contenedor-chat { flex-grow: 1; display: flex; flex-direction: column; margin-top: 60px; height: calc(100vh - 60px); width: 100%; }
         #chat-box { flex-grow: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
         .user-msg { align-self: flex-end; background: #333; padding: 10px 15px; border-radius: 15px 15px 0 15px; max-width: 80%; }
-        .bot-msg { align-self: flex-start; background: #1a1a1a; padding: 10px 15px; border-radius: 15px 15px 15px 0; max-width: 80%; border: 1px solid #333; }
+        .bot-msg { align-self: flex-start; background: #1a1a1a; padding: 10px 15px; border-radius: 15px 15px 15px 0; max-width: 80%; border: 1px solid #333; font-size: 15px; line-height: 1.4; }
 
-        /* ENTRADA */
-        #zona-entrada { background: #000; padding: 15px; display: flex; align-items: center; border-top: 1px solid #333; }
+        /* ENTRADA AJUSTADA PARA COMODIDAD */
+        #zona-entrada { background: #000; padding: 15px 15px 25px 15px; display: flex; align-items: center; border-top: 1px solid #333; }
         #user-input { flex-grow: 1; background: #222; border: none; color: #fff; padding: 12px 18px; border-radius: 25px; outline: none; font-size: 16px; }
         #boton-enviar { background: #fff; color: #000; border: none; padding: 10px 15px; border-radius: 50%; font-size: 18px; margin-left: 10px; cursor: pointer; }
     </style>
@@ -53,15 +53,15 @@
 
     <div id="barra-superior">
         <button id="boton-menu" onclick="toggleMenu()">&#9776;</button>
-        <div id="titulo-header">Chat de Terminal</div>
+        <div id="titulo-header">Terminal ZK</div>
     </div>
 
     <div id="contenedor-chat">
         <div id="chat-box">
-            <div style="color: #666; text-align: center; margin-top: 20px; font-size: 14px;">Inicia una conversación con el núcleo ZK</div>
+            <div id="msj-guia" style="color: #666; text-align: center; margin-top: 20px; font-size: 14px;">Inicia una conversación con el núcleo ZK</div>
         </div>
         <div id="zona-entrada">
-            <input type="text" id="user-input" placeholder="Escribir mensaje...">
+            <input type="text" id="user-input" placeholder="Escribir mensaje..." autocomplete="off">
             <button id="boton-enviar" onclick="enviarMensaje()">&#10148;</button>
         </div>
     </div>
@@ -72,31 +72,57 @@
             document.getElementById("overlay").classList.toggle("abierto");
         }
 
+        // --- EL DICCIONARIO DE RESPUESTAS ---
+        // Aquí puedes agregar todas las que quieras siguiendo el formato "palabra": "respuesta",
+        const baseDatos = {
+            "hola": "hola. como esta su dia.",
+            "quien eres": "Mi nombre es Viper, y si me lo permite su asistente.",
+            "estás bien": "La verdad desconozco mis sentimientos, pero diria que siento mas o menos.",
+            "gracias": "No ay de que, si nesesitas algo recuerda qud estoy para ayudarte.",
+            "adios": "Chao.",
+            "estatus": "sitio web: Seguro. Archivos: Encriptados. Conexión: Activa.",
+            "que sabes": "Tengo acceso a los registros del búnker, pero mi base de datos sobre usuarios externos está vacía.",
+            "jajaja": "Humor detectado. Registrando reacción en los logs del sistema."
+        };
+
         function enviarMensaje() {
             let input = document.getElementById("user-input");
             let chatBox = document.getElementById("chat-box");
             let header = document.getElementById("titulo-header");
-            let val = input.value.trim();
+            let texto = input.value.trim();
+            let msgMin = texto.toLowerCase();
 
-            if (val === "") return;
+            if (texto === "") return;
 
-            // Actualizar título del header con las primeras palabras
-            let palabras = val.split(' ');
+            // Quitar mensaje de guía si existe
+            if(document.getElementById("msj-guia")) document.getElementById("msj-guia").remove();
+
+            // Título dinámico
+            let palabras = texto.split(' ');
             header.innerText = palabras.slice(0, 3).join(' ') + (palabras.length > 3 ? "..." : "");
 
             // Poner tu mensaje
-            chatBox.innerHTML += `<div class="user-msg">${val}</div>`;
+            chatBox.innerHTML += `<div class="user-msg">${texto}</div>`;
             
-            // Respuesta automática
+            // --- BUSCADOR DE RESPUESTA ---
+            let respuestaIA = "Comando no identificado. Procesando solicitud de registro.";
+
+            for (let clave in baseDatos) {
+                if (msgMin.includes(clave)) {
+                    respuestaIA = baseDatos[clave];
+                    break;
+                }
+            }
+
+            // Respuesta automática con delay
             setTimeout(() => {
-                chatBox.innerHTML += `<div class="bot-msg">Recibido. Procesando comando en el sistema ZK. Esperando más datos.</div>`;
+                chatBox.innerHTML += `<div class="bot-msg">${respuestaIA}</div>`;
                 chatBox.scrollTop = chatBox.scrollHeight;
-            }, 500);
+            }, 450);
 
             input.value = "";
         }
 
-        // Enter para enviar
         document.getElementById("user-input").onkeypress = function(e) {
             if (e.key === 'Enter') enviarMensaje();
         };
