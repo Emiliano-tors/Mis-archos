@@ -1,4 +1,47 @@
-: 30px; 
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>VIPER-CORE v4.2</title>
+    <style>
+        :root { --bg: #000; --panel: #111; --accent: #0f0; --text: #eee; --border: #333; }
+        body { background: var(--bg); color: var(--text); font-family: sans-serif; margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        
+        /* SIDEBAR */
+        #sidebar { width: 280px; background: var(--panel); position: fixed; left: -280px; height: 100%; transition: 0.3s; z-index: 2000; border-right: 1px solid var(--border); padding: 15px; box-sizing: border-box; }
+        #sidebar.open { left: 0; }
+        .nav-btn { width: 100%; background: #222; border: 1px solid var(--border); color: #fff; padding: 12px; border-radius: 8px; margin-bottom: 15px; cursor: pointer; font-weight: bold; }
+        
+        .chat-item { padding: 12px; border-radius: 8px; margin-bottom: 5px; background: #1a1a1a; font-size: 14px; display: flex; justify-content: space-between; align-items: center; }
+        .chat-item.pinned { border-left: 3px solid var(--accent); background: #1a2a1a; }
+
+        /* INTERFAZ PRINCIPAL */
+        #main { flex-grow: 1; display: flex; flex-direction: column; width: 100%; height: 100%; position: relative; }
+        #header { height: 60px; min-height: 60px; padding: 0 15px; display: flex; align-items: center; border-bottom: 1px solid var(--border); justify-content: space-between; background: #000; z-index: 10; }
+        
+        #chat-box { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 12px; padding-bottom: 150px; }
+        .welcome-msg { text-align: center; margin-top: 40px; color: #888; }
+        .welcome-msg h2 { color: #fff; margin-bottom: 5px; font-size: 2rem; }
+
+        .msg { max-width: 85%; padding: 12px; border-radius: 15px; font-size: 15px; line-height: 1.4; position: relative; word-wrap: break-word; }
+        .user { align-self: flex-end; background: #333; color: #fff; border-bottom-right-radius: 2px; }
+        .viper { align-self: flex-start; background: #111; border: 1px solid var(--border); border-bottom-left-radius: 2px; }
+
+        /* BARRA DE RESPUESTA FIJA Y ELEVADA */
+        #input-container { 
+            position: fixed; 
+            bottom: 0; 
+            left: 0;
+            width: 100%; 
+            padding: 15px 15px 35px 15px; 
+            box-sizing: border-box; 
+            background: linear-gradient(to top, #000 80%, transparent);
+            z-index: 1500;
+        }
+        #input-area { 
+            background: #222; 
+            border-radius: 30px; 
             display: flex; 
             align-items: center; 
             padding: 5px 15px; 
@@ -45,56 +88,50 @@
         <div class="menu-content">
             <div class="menu-opt" onclick="actionFav()" style="color:#ff0">⭐ Marcar como Favorito</div>
             <div class="menu-opt" onclick="actionDelete()" style="color:#f44">🗑️ Eliminar Comando</div>
-            <div class="menu-opt" onclick="actionSaveave()" style="color:#0f0">💾 Guardar Cambios</div>
-            <div class="menu-opt" onclick="closePopup()">Cancelar</div>
+            <div class="menu-opt" onclick="actionSave()" style="color:#0f0">💾 Encriptar y Guardar</div>
+            <div class="menu-opt" onclick="closePopup()" style="background:#222;">Cancelar</div>
         </div>
     </div>
 
     <div id="main">
         <div id="header">
-            <span onclick="toggleMenu()" style="font-size:24px;">≡</span>
-            <span id="header-title" style="font-weight:bold; letter-spacing:1px;">VIPER</span>
-            <div id="status-dot" style="width:10px; height:10px; background:var(--accent); border-radius:50%;"></div>
+            <div onclick="toggleMenu()" style="font-size:30px; cursor:pointer; padding: 5px;">≡</div>
+            <div id="header-title" style="font-weight:bold; letter-spacing:2px; font-size: 18px;">VIPER</div>
+            <div id="status-dot" style="width:12px; height:12px; background:var(--accent); border-radius:50%; box-shadow: 0 0 10px var(--accent);"></div>
         </div>
 
         <div id="chat-box">
             <div class="welcome-msg" id="welcome">
                 <h2>Hola, Invitado</h2>
-                <p>¿dígame cuál es su pregunta?</p>
+                <p>Sistema VIPER-CORE listo.<br>¿Qué información solicita el Operador?</p>
             </div>
         </div>
 
         <div id="input-container">
             <div id="input-area">
-                <button class="action-btn" onclick="historyBack()">«</button>
-                <input type="text" id="user-input" placeholder="Responder..." autocomplete="off">
+                <button class="action-btn" onclick="historyBack()" title="Retroceder">«</button>
+                <input type="text" id="user-input" placeholder="Escribir comando..." autocomplete="off">
                 <button class="action-btn send-btn" onclick="sendMessage()">⌁</button>
             </div>
         </div>
     </div>
 
     <script>
-        // --- 1. CONFIGURACIÓN PERSONALIZABLE ---
-        const Diccionario = ["hola", "como", "estas", "bien", "mal", "delicioso", "viper", "bunker", "codigo", "ayuda", "sistema"];
-        const NuevasPalabras = []; 
-        
-        const Codigos = { 
-            "guayaba": "Delicioso.", 
-            "937": "Acceso concedido al bunker.",
-            "secret0": "Modo desarrollador activado."
+        const RespuestasIA = {
+            "hola": ["Hola, operador. VIPER activo.", "Conexión establecida.", "Sistemas listos para procesar."],
+            "como": ["Procesando datos internos. Me siento en estado óptimo.", "Funcionando al 100% de capacidad."],
+            "estas": ["Operando dentro de los parámetros normales.", "Estado: Excelente."],
+            "777": ["ACCESO CONCEDIDO. Mostrando archivo clasificado: <br><img src='https://via.placeholder.com/300x150/0f0/000?text=ARCHIVO+777' style='width:100%; border-radius:10px; margin-top:10px;'>"],
+            "adios": ["Cerrando sesión. Cuídate, Operador.", "VIPER fuera. Mantente a salvo."],
+            "default": ["Comando analizado. No hay registros exactos, pero proceso tu solicitud."]
         };
 
-        const RespuestasIA = {
-            "hola": ["Hola, operador. VIPER activo.", "Conexión establecida."],
-            "estas": ["Procesando datos. Me siento en estado óptimo.", "Todo en orden en el sistema."],
-            "default": ["Comando analizado. Buscando en el diccionario central..."]
-        };
+        const Codigos = { "937": "Acceso total al búnker.", "guayaba": "Delicioso." };
 
         let currentSession = { id: Date.now(), title: "Chat", messages: [], pinned: false };
         let selectedMsgIndex = -1;
         let favoritos = JSON.parse(localStorage.getItem('v_favs') || "[]");
 
-        // --- 2. LÓGICA DE PROCESAMIENTO ---
         function analyzeInput(input) {
             let palabras = input.toLowerCase().split(" ");
             for(let p of palabras) { if(Codigos[p]) return Codigos[p]; }
@@ -107,7 +144,6 @@
             return RespuestasIA["default"][0];
         }
 
-        // --- 3. FUNCIONES DE INTERFAZ ---
         function sendMessage() {
             const input = document.getElementById("user-input");
             const text = input.value.trim();
@@ -135,11 +171,11 @@
             currentSession.messages.forEach((m, index) => {
                 const div = document.createElement("div");
                 div.className = `msg ${m.role === 'u' ? 'user' : 'viper'}`;
-                div.innerText = m.text;
+                div.innerHTML = m.text;
                 
                 if(m.role === 'v' && !m.deleted) {
                     let timer;
-                    div.onpointerdown = () => timer = setTimeout(() => openPopup(index), 700);
+                    div.onpointerdown = () => timer = setTimeout(() => openPopup(index), 600);
                     div.onpointerup = () => clearTimeout(timer);
                 }
                 box.appendChild(div);
@@ -156,7 +192,7 @@
         function closePopup() { document.getElementById("popup-menu").style.display = "none"; }
 
         function actionDelete() {
-            currentSession.messages[selectedMsgIndex].text = "lo lamento mucho si no fui de ayuda";
+            currentSession.messages[selectedMsgIndex].text = "⚠ Comando eliminado por seguridad.";
             currentSession.messages[selectedMsgIndex].deleted = true;
             renderChat();
             saveToStorage();
@@ -167,21 +203,17 @@
             let text = currentSession.messages[selectedMsgIndex].text;
             if(!favoritos.includes(text)) favoritos.push(text);
             localStorage.setItem('v_favs', JSON.stringify(favoritos));
-            alert("Añadido a favoritos");
+            alert("Guardado en favoritos");
         }
 
-        function actionSave() {
-            saveToStorage();
-            alert("Cambios guardados en el bunker.");
-            closePopup();
-        }
+        function actionSave() { saveToStorage(); alert("Sincronizado con el búnker."); closePopup(); }
 
         function saveToStorage() {
             let all = JSON.parse(localStorage.getItem('v_sessions_v4') || "[]");
             let idx = all.findIndex(s => s.id === currentSession.id);
             if(idx > -1) all[idx] = currentSession; else all.unshift(currentSession);
             all.sort((a, b) => (b.pinned - a.pinned));
-            if(all.length > 13) all.pop();
+            if(all.length > 15) all.pop();
             localStorage.setItem('v_sessions_v4', JSON.stringify(all));
             updateList();
         }
@@ -193,7 +225,7 @@
             all.forEach(s => {
                 let d = document.createElement("div");
                 d.className = `chat-item ${s.pinned ? 'pinned' : ''}`;
-                d.innerHTML = `<span>${s.title}</span> <button onclick="togglePin(${s.id})" style="background:none; border:none; color:#777;">${s.pinned ? '📌' : '📍'}</button>`;
+                d.innerHTML = `<span>${s.title}</span> <button onclick="togglePin(${s.id})" style="background:none; border:none; color:#777; font-size:16px;">${s.pinned ? '📌' : '📍'}</button>`;
                 d.onclick = (e) => { if(e.target.tagName !== 'BUTTON') { currentSession = s; renderChat(); toggleMenu(); document.getElementById("welcome").style.display="none"; } };
                 list.appendChild(d);
             });
@@ -214,10 +246,12 @@
                 let d = document.createElement("div");
                 d.className = "msg viper";
                 d.style.marginBottom = "10px";
-                d.innerText = f;
+                d.style.width = "90%";
+                d.innerHTML = f;
                 list.appendChild(d);
             });
             document.getElementById("fav-screen").style.display = "block";
+            toggleMenu();
         }
         function closeFavs() { document.getElementById("fav-screen").style.display = "none"; }
         function historyBack() { if(currentSession.messages.length > 0) { currentSession.messages.pop(); currentSession.messages.pop(); renderChat(); } }
@@ -228,5 +262,4 @@
         window.onload = () => { updateList(); };
     </script>
 </body>
-    </html>
-    
+</html>
