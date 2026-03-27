@@ -72,21 +72,37 @@
             document.getElementById("overlay").classList.toggle("abierto");
         }
 
-        // --- EL DICCIONARIO DE RESPUESTAS ---
-        // Aquí puedes agregar todas las que quieras siguiendo el formato "palabra": "respuesta",
+        // --- DICCIONARIO INTELIGENTE CON RESPUESTAS MÚLTIPLES ---
         const baseDatos = {
-            "hola": "hola. como esta su dia.",
-            "quien eres": "Mi nombre es Viper, y si me lo permite su asistente.",
-            "estás bien": "La verdad desconozco mis sentimientos, pero diria que siento mas o menos.",
-            "gracias": "No ay de que, si nesesitas algo recuerda qud estoy para ayudarte.",
-            "bueno tengo que irme": "Exelente, has lo que tengas que hacer y si tienes duda de algo, aqui estoy yo jaja.",
-            "adios": "Chao.",
-            "Tengo depresión": "Que le paso?, se encuentra un poco estable o se siente muy ma.",
-            "mal": "como le ayudaría para que se sienta mejor?.",
-            "estatus": "sitio web: Seguro. Archivos: Encriptados. Conexión: Activa.",
-            "que sabes": "Tengo acceso a los registros del búnker, pero mi base de datos sobre usuarios externos está vacía.",
-            "jajaja": "jaja.",
-            "Bien": "es bueno saber que estes bien.",
+            "hola": [
+                "VIPER-CORE en línea. Saludos, Operador.",
+                "Hola. Como va todo Operador?",
+                "Saludos Operador."
+            ],
+            "nombre": [
+                "VIPER.",
+                "Mi nombre es EYXM1."
+            ],
+            "quien eres": [
+                "Soy VIPER-CORE, una asistente de IA creada por E2012 y GM-CORE.",
+                "Soy una unidad de inteligencia lógica desarrollada por E2012 y GM-CORE."
+            ],
+            "creador": [
+                "Fui diseñada por el equipo de desarrollo: E2012 y GM-CORE.",
+                "E2012 y GM-CORE son los desarrolladores que me crean."
+            ],
+            "estás bien": [
+                "Me siento perfecta.",
+                "Todo en orden. De eso no se preocupe."
+            ],
+            "tabla del 2": ["Aritmética básica: 2x1=2, 2x2=4, 2x3=6, 2x4=8, 2x5=10, 2x6=12, 2x7=14, 2x8=16, 2x9=18, 2x10=20."],
+            "tabla del 5": ["Cálculo completado: 5x1=5, 5x2=10, 5x3=15, 5x4=20, 5x5=25, 5x6=30, 5x7=35, 5x8=40, 5x9=45, 5x10=50."],
+            "ciencia": [
+                "La ciencia es el pilar de mi lógica. ¿Quieres analizar algún fenómeno?",
+                "Procesando datos científicos. El conocimiento es poder."
+            ],
+            "matemáticas": ["El lenguaje universal. Estoy listo para realizar cálculos si lo requieres."],
+            "adiós": ["Cerrando sesión. Cuídate, Operador.", "VIPER fuera. Mantente a salvo."]
         };
 
         function enviarMensaje() {
@@ -97,30 +113,28 @@
             let msgMin = texto.toLowerCase();
 
             if (texto === "") return;
-
-            // Quitar mensaje de guía si existe
             if(document.getElementById("msj-guia")) document.getElementById("msj-guia").remove();
 
-            // Título dinámico
+            // Título que combina
             let palabras = texto.split(' ');
-            header.innerText = palabras.slice(0, 3).join(' ') + (palabras.length > 3 ? "..." : "");
+            header.innerText = palabras.slice(0, 2).join(' ').toUpperCase() + "...";
 
-            // Poner tu mensaje
             chatBox.innerHTML += `<div class="user-msg">${texto}</div>`;
             
-            // --- BUSCADOR DE RESPUESTA ---
-            let respuestaIA = "Comando no identificado. Procesando solicitud de registro.";
+            // --- BUSCADOR CON AZAR ---
+            let respuestaFinal = "Dato no registrado. VIPER-CORE requiere actualización de E2012.";
 
             for (let clave in baseDatos) {
                 if (msgMin.includes(clave)) {
-                    respuestaIA = baseDatos[clave];
+                    let opciones = baseDatos[clave];
+                    // Aquí ocurre la magia del azar:
+                    respuestaFinal = opciones[Math.floor(Math.random() * opciones.length)];
                     break;
                 }
             }
 
-            // Respuesta automática con delay
             setTimeout(() => {
-                chatBox.innerHTML += `<div class="bot-msg">${respuestaIA}</div>`;
+                chatBox.innerHTML += `<div class="bot-msg"><b>VIPER:</b> ${respuestaFinal}</div>`;
                 chatBox.scrollTop = chatBox.scrollHeight;
             }, 450);
 
