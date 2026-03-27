@@ -3,235 +3,194 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VIPER-CORE v3.0</title>
+    <title>VIPER-CORE OMNI v6.0</title>
     <style>
-        :root { --bg: #000; --panel: #0a0a0a; --accent: #0f0; --text: #d1d1d1; --border: #1a1a1a; --user-msg: #161616; --danger: #f00; }
-        body { background: var(--bg); color: var(--text); font-family: sans-serif; margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        :root { --bg: #000; --accent: #0f0; --panel: #0d0d0d; --msg-user: #1a1a1a; --border: #222; }
+        body { background: var(--bg); color: #eee; font-family: 'Courier New', monospace; margin: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
         
-        /* SIDEBAR (MENÚ IZQUIERDO) */
-        #sidebar { width: 280px; background: var(--panel); position: fixed; left: -280px; height: 100%; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 2000; border-right: 1px solid var(--border); padding: 20px; box-sizing: border-box; }
+        /* INTERFAZ OMNI (SIDEBAR + X) */
+        #sidebar { width: 280px; background: var(--panel); position: fixed; left: -280px; height: 100%; transition: 0.3s; z-index: 2000; border-right: 1px solid var(--border); padding: 15px; box-sizing: border-box; }
         #sidebar.open { left: 0; }
-        .close-x { position: absolute; top: 10px; right: 10px; color: var(--danger); font-weight: bold; cursor: pointer; border: 1px solid var(--danger); padding: 5px 10px; border-radius: 3px; font-size: 12px; }
-        .nav-btn { width: 100%; background: transparent; border: 1px solid var(--border); color: #fff; padding: 14px; border-radius: 4px; margin-bottom: 15px; cursor: pointer; font-size: 13px; font-weight: bold; text-transform: uppercase; }
+        .btn-x { color: #f00; border: 1px solid #f00; padding: 5px 10px; float: right; cursor: pointer; font-weight: bold; }
+        .nav-btn { width: 100%; padding: 12px; margin: 10px 0; background: #111; border: 1px solid var(--border); color: #fff; cursor: pointer; text-align: left; }
         
-        .chat-item { padding: 15px; border-radius: 4px; margin-bottom: 8px; background: #0f0f0f; font-size: 14px; display: flex; justify-content: space-between; align-items: center; border: 1px solid transparent; transition: 0.2s; cursor: pointer; }
-        .chat-item.pinned { border-color: var(--accent); background: #051005; }
-        .pin-indicator { color: var(--accent); font-size: 10px; font-weight: bold; }
+        /* CHAT BOX ESTILO VIPER */
+        #chat-box { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; padding-bottom: 120px; }
+        .msg { max-width: 85%; padding: 12px 18px; border-radius: 12px; line-height: 1.5; font-size: 15px; position: relative; animation: slide 0.2s ease-out; }
+        .user { align-self: flex-end; background: var(--msg-user); border: 1px solid #333; color: #fff; }
+        .viper { align-self: flex-start; background: #000; border-left: 3px solid var(--accent); color: var(--accent); box-shadow: inset 0 0 10px #050505; }
+        
+        /* INPUT DINÁMICO (TIPO GROK/GEMINI) */
+        #input-container { position: fixed; bottom: 0; width: 100%; padding: 15px; background: linear-gradient(transparent, #000 40%); box-sizing: border-box; }
+        #input-area { background: #111; border: 1px solid var(--border); border-radius: 25px; display: flex; align-items: center; padding: 5px 20px; gap: 10px; }
+        #user-input { flex: 1; background: transparent; border: none; color: #fff; padding: 12px 0; outline: none; font-size: 16px; }
+        .ctrl-btn { color: #555; background: none; border: none; font-size: 20px; cursor: pointer; transition: 0.2s; }
+        .ctrl-btn:hover { color: var(--accent); }
 
-        /* INTERFAZ PRINCIPAL */
-        #main { flex-grow: 1; display: flex; flex-direction: column; width: 100%; height: 100%; position: relative; }
-        #header { height: 60px; min-height: 60px; padding: 0 15px; display: flex; align-items: center; border-bottom: 1px solid var(--border); justify-content: space-between; background: #000; z-index: 10; }
-        
-        #chat-box { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 12px; padding-bottom: 150px; scroll-behavior: smooth; }
-        .welcome-msg { text-align: center; margin: auto; color: #888; }
-        .welcome-msg h2 { color: #fff; font-weight: 200; font-size: 2.2rem; margin-bottom: 10px; }
+        /* MENÚ CONTEXTUAL */
+        #ctx-menu { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 3000; align-items: center; justify-content: center; }
+        .menu-box { background: #0a0a0a; border: 1px solid var(--border); width: 80%; max-width: 300px; border-radius: 10px; overflow: hidden; }
+        .opt { padding: 15px; border-bottom: 1px solid #111; text-align: center; cursor: pointer; }
+        .opt:last-child { border: none; }
 
-        .msg { max-width: 85%; padding: 12px; border-radius: 15px; font-size: 15px; line-height: 1.4; position: relative; word-wrap: break-word; }
-        .user { align-self: flex-end; background: #333; color: #fff; border-bottom-right-radius: 2px; }
-        .viper { align-self: flex-start; background: #111; border: 1px solid var(--border); border-bottom-left-radius: 2px; }
-        
-        /* BARRA DE RESPUESTA FLOTANTE */
-        #input-container { position: fixed; bottom: 0; left: 0; width: 100%; padding: 15px 15px 35px 15px; box-sizing: border-box; background: linear-gradient(transparent, #000 80%); z-index: 1500; }
-        #input-area { background: #222; border-radius: 30px; display: flex; align-items: center; padding: 5px 15px; border: 1px solid #444; gap: 10px; box-shadow: 0 -5px 25px rgba(0,0,0,0.8); }
-        #user-input { flex-grow: 1; background: transparent; border: none; color: #fff; padding: 12px 0; outline: none; font-size: 16px; }
-        
-        .action-btn { background: none; border: none; color: #555; font-size: 20px; cursor: pointer; padding: 5px; }
-        .action-btn:hover { color: #fff; }
-
-        /* MENU CONTEXTUAL (PULSACIÓN LARGA) */
-        #popup-menu { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 3000; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
-        .menu-content { background: #0a0a0a; width: 280px; border-radius: 15px; border: 1px solid var(--border); overflow: hidden; position: relative; }
-        .menu-opt { padding: 18px; border-bottom: 1px solid #333; text-align: center; cursor: pointer; font-size: 16px; font-weight: bold; text-transform: uppercase; }
+        @keyframes slide { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
     </style>
 </head>
 <body>
 
-    <div id="overlay-bg" onclick="toggleMenu()" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1999;"></div>
-    
     <div id="sidebar">
-        <div class="close-x" onclick="toggleMenu()">X</div>
-        <button class="nav-btn" onclick="newChat()">+ Nueva Sesión</button>
-        <button class="nav-btn" onclick="alert('Acceso a Archivos encriptado')">⭐ Favoritos</button>
-        <div id="chat-list"></div>
+        <div class="btn-x" onclick="closeSide()">X</div>
+        <h3 style="color:var(--accent); letter-spacing: 2px;">BÚNKER VIPER</h3>
+        <button class="nav-btn" onclick="newSession()">+ NUEVA SESIÓN</button>
+        <button class="nav-btn" onclick="toggleMem()">MEMORIA: <span id="mem-val">ON</span></button>
+        <div id="log-list" style="margin-top: 20px;"></div>
     </div>
 
-    <div id="popup-menu">
-        <div class="menu-content" id="menu-box">
-            </div>
+    <div id="ctx-menu">
+        <div class="menu-box" id="menu-inner"></div>
     </div>
 
-    <div id="main">
-        <div id="header">
-            <div onclick="toggleMenu()" style="font-size:30px; cursor:pointer; padding: 5px;">≡</div>
-            <div id="header-title" onclick="renameChat()" style="font-weight:bold; letter-spacing:2px; font-size: 14px; cursor:pointer;">VIPER-CORE</div>
-            <div id="status-dot" style="width:10px; height:10px; background:var(--accent); border-radius:50%; box-shadow: 0 0 10px var(--accent);"></div>
-        </div>
+    <header style="height: 60px; display: flex; align-items: center; justify-content: space-between; padding: 0 15px; border-bottom: 1px solid var(--border);">
+        <div onclick="openSide()" style="font-size: 25px; cursor: pointer;">☰</div>
+        <div id="session-title" onclick="editTitle()" style="font-weight: bold; font-size: 14px;">VIPER-CORE OMNI</div>
+        <div style="width: 10px; height: 10px; background: var(--accent); border-radius: 50%; box-shadow: 0 0 8px var(--accent);"></div>
+    </header>
 
-        <div id="chat-box">
-            <div class="welcome-msg" id="welcome">
-                <h2>Hola, Invitado</h2>
-                <p>¿dígame cuál es su pregunta?</p>
-            </div>
+    <div id="chat-box">
+        <div id="welcome" style="margin: auto; text-align: center; opacity: 0.5;">
+            <h1>VIPER</h1>
+            <p>SISTEMA OPERACIONAL LISTO</p>
         </div>
+    </div>
 
-        <div id="input-container">
-            <div id="input-area">
-                <button class="action-btn" onclick="historyNav(-1)">«</button>
-                <input type="text" id="user-input" placeholder="Responder..." autocomplete="off">
-                <button class="action-btn" onclick="historyNav(1)">»</button>
-                <button class="action-btn" onclick="sendMessage()" style="color:var(--accent); font-size:24px;">◈</button>
-            </div>
+    <div id="input-container">
+        <div id="input-area">
+            <button class="ctrl-btn" onclick="hist(-1)">«</button>
+            <input type="text" id="user-input" placeholder="Escribir comando..." autocomplete="off">
+            <button class="ctrl-btn" onclick="hist(1)">»</button>
+            <button class="ctrl-btn" onclick="send()" style="color:var(--accent)">◈</button>
         </div>
     </div>
 
     <script>
-        // --- 1. CONFIGURACIÓN DEL SISTEMA (RESPUESTAS) ---
-        const RespuestasIA = {
-            "hola": ["Hola, operador. VIPER activo.", "Conexión establecida, Operador.", "Sistemas listos."],
-            "default": ["Comando analizado correctamente. No hay registros exactos para esta consulta."]
+        // --- PROPIEDADES EYU488 (VIPER) ---
+        let currentLog = { id: Date.now(), title: "NUEVO_LOG", msgs: [], pinned: false };
+        let hIdx = -1;
+        let mem = true;
+        let timer;
+
+        // --- SISTEMA DE RESPUESTAS (VIPER BRAIN) ---
+        const VIPER_BRAIN = {
+            "hola": "Conexión establecida. VIPER-CORE operativo.",
+            "quien eres": "EYU488. Asistente digital de 21 años. Control total del búnker.",
+            "borrar": "Protocolo de purga activado por orden del Operador.",
+            "default": "Comando procesado. No hay registros exactos, pero ejecuto lógica de soporte."
         };
 
-        const Codigos = { "guayaba": "Delicioso.", "937": "Acceso total al búnker." };
-
-        let currentSession = { id: Date.now(), title: "LOG", messages: [], pinned: false };
-        let historyIndex = -1;
-        let pressTimer;
-
-        // --- 2. LÓGICA DE PROCESAMIENTO ---
-        function analyzeInput(input) {
-            let palabras = input.toLowerCase().split(" ");
-            for(let p of palabras) { if(Codigos[p]) return Codigos[p]; }
-            
-            // Buscar en RespuestasIA
-            for(let p of palabras) {
-                if(RespuestasIA[p]) {
-                    let r = RespuestasIA[p];
-                    return r[Math.floor(Math.random() * r.length)];
-                }
-            }
-            return RespuestasIA["default"][0];
-        }
-
-        // --- 3. FUNCIONES DE INTERFAZ ---
-        function sendMessage() {
+        function send() {
             const input = document.getElementById("user-input");
-            const text = input.value.trim();
-            if(!text) return;
+            const val = input.value.trim();
+            if(!val) return;
 
             document.getElementById("welcome").style.display = "none";
-            const userMsg = { id: Date.now(), role: 'u', text: text, deleted: false };
-            currentSession.messages.push(userMsg);
             
-            if(currentSession.messages.length === 1) currentSession.title = text.substring(0, 15).toUpperCase();
+            // 1. Guardar mensaje de usuario
+            currentLog.msgs.push({ r: 'u', t: val });
+            if(currentLog.msgs.length === 1) currentLog.title = val.substring(0, 12).toUpperCase();
             
-            renderChat();
+            draw();
             input.value = "";
-            historyIndex = currentSession.messages.filter(m => m.role === 'u').length;
 
-            // Respuesta Instantánea (No se traba)
+            // 2. Respuesta instantánea sin bloqueos
             setTimeout(() => {
-                let replyText = analyzeInput(text);
-                currentSession.messages.push({ id: Date.now() + 1, role: 'v', text: replyText, deleted: false });
-                renderChat();
-                saveToStorage();
-            }, 300);
+                let r = VIPER_BRAIN[val.toLowerCase()] || VIPER_BRAIN["default"];
+                currentLog.msgs.push({ r: 'v', t: r });
+                draw();
+                save();
+            }, 200);
         }
 
-        function renderChat() {
+        function draw() {
             const box = document.getElementById("chat-box");
             box.innerHTML = "";
-            currentSession.messages.forEach((m, idx) => {
-                if(!m.text) return;
-                const div = document.createElement("div");
-                div.className = `msg ${m.role === 'u' ? 'user' : 'viper'}`;
-                div.innerHTML = m.text;
+            currentLog.msgs.forEach((m, i) => {
+                const d = document.createElement("div");
+                d.className = `msg ${m.r === 'u' ? 'user' : 'viper'}`;
+                d.innerHTML = m.t;
                 
-                // Eventos de pulsación larga (Menú)
-                div.onmousedown = div.ontouchstart = () => pressTimer = setTimeout(() => openMenu(idx), 800);
-                div.onmouseup = div.ontouchend = () => clearTimeout(pressTimer);
+                // Pulsación larga para Menú Contextual
+                d.onmousedown = d.ontouchstart = () => timer = setTimeout(() => openCtx(i), 700);
+                d.onmouseup = d.ontouchend = () => clearTimeout(timer);
                 
-                box.appendChild(div);
+                box.appendChild(d);
             });
             box.scrollTop = box.scrollHeight;
-            document.getElementById("header-title").innerText = currentSession.title;
+            document.getElementById("session-title").innerText = currentLog.title;
         }
 
-        // --- 4. ACCIONES DEL MENÚ EMERGENTE ---
-        function openMenu(idx) {
-            const menu = document.getElementById("menu-box");
-            menu.innerHTML = `
-                <div class="close-x" style="position:absolute; top:10px; right:10px;" onclick="closeMenu()">X</div>
-                <div class="menu-opt" onclick="editMsg(${idx})">Editar Mensaje</div>
-                <div class="menu-opt" onclick="deleteMsg(${idx})" style="color:var(--danger)">Purgar Mensaje</div>
-                <div class="menu-opt" onclick="togglePinChat()"> ${currentSession.pinned ? 'Desanclar Log' : 'Anclar Log'}</div>
+        function openCtx(i) {
+            const m = document.getElementById("menu-inner");
+            m.innerHTML = `
+                <div class="btn-x" style="margin:10px;" onclick="closeCtx()">X</div>
+                <div class="opt" onclick="editMsg(${i})">EDITAR COMANDO</div>
+                <div class="opt" onclick="delMsg(${i})" style="color:red">PURGAR REGISTRO</div>
+                <div class="opt" onclick="pinLog()">ANCLAR SESIÓN</div>
             `;
-            document.getElementById("popup-menu").style.display = "flex";
+            document.getElementById("ctx-menu").style.display = "flex";
         }
 
-        function closeMenu() { document.getElementById("popup-menu").style.display = "none"; }
-
-        function editMsg(idx) {
-            const newText = prompt("Editar comando:", currentSession.messages[idx].text);
-            if(newText) { currentSession.messages[idx].text = newText; renderChat(); saveToStorage(); }
-            closeMenu();
+        function editMsg(i) {
+            const nt = prompt("Corregir:", currentLog.msgs[i].t);
+            if(nt) { currentLog.msgs[i].t = nt; draw(); save(); }
+            closeCtx();
         }
 
-        function deleteMsg(idx) {
-            currentSession.messages.splice(idx, 1);
-            renderChat(); saveToStorage(); closeMenu();
+        function delMsg(i) {
+            currentLog.msgs.splice(i, 1);
+            draw(); save(); closeCtx();
         }
 
-        function renameChat() {
-            const n = prompt("Nuevo ID:", currentSession.title);
-            if(n) { currentSession.title = n.toUpperCase(); saveToStorage(); renderChat(); }
+        function save() {
+            let logs = JSON.parse(localStorage.getItem('v_omni_6') || "[]");
+            const idx = logs.findIndex(l => l.id === currentLog.id);
+            if(idx > -1) logs[idx] = currentLog; else logs.unshift(currentLog);
+            logs.sort((a,b) => b.pinned - a.pinned);
+            localStorage.setItem('v_omni_6', JSON.stringify(logs));
+            updateList();
         }
 
-        function togglePinChat() {
-            currentSession.pinned = !currentSession.pinned;
-            saveToStorage(); updateSidebar(); closeMenu();
-        }
-
-        // --- 5. GESTIÓN DE CHATS Y HISTORIAL ---
-        function historyNav(dir) {
-            const uMsgs = currentSession.messages.filter(m => m.role === 'u');
-            historyIndex += dir;
-            if(historyIndex < 0) historyIndex = 0;
-            if(historyIndex >= uMsgs.length) historyIndex = uMsgs.length;
-            const target = uMsgs[historyIndex];
-            document.getElementById("user-input").value = target ? target.text : "";
-        }
-
-        function saveToStorage() {
-            let logs = JSON.parse(localStorage.getItem('viper_logs_v3') || "[]");
-            const i = logs.findIndex(l => l.id === currentSession.id);
-            if(i > -1) logs[i] = currentSession; else logs.unshift(currentSession);
-            logs.sort((a,b) => (b.pinned - a.pinned) || (b.id - a.id));
-            localStorage.setItem('viper_logs_v3', JSON.stringify(logs));
-            updateSidebar();
-        }
-
-        function updateSidebar() {
-            const list = document.getElementById("chat-list");
+        function updateList() {
+            const list = document.getElementById("log-list");
             list.innerHTML = "";
-            const logs = JSON.parse(localStorage.getItem('viper_logs_v3') || "[]");
+            const logs = JSON.parse(localStorage.getItem('v_omni_6') || "[]");
             logs.forEach(l => {
                 const d = document.createElement("div");
-                d.className = `chat-item ${l.pinned ? 'pinned' : ''}`;
-                d.innerHTML = `<span>${l.title}</span> <button onclick="togglePinChat(${l.id})" style="background:none; border:none; color:#555;">${l.pinned ? '📌' : '📍'}</button>`;
-                d.onclick = (e) => { if(e.target.tagName !== 'BUTTON') { currentSession = l; renderChat(); toggleMenu(); document.getElementById("welcome").style.display="none"; } };
+                d.className = "nav-btn";
+                d.style.borderColor = l.pinned ? "var(--accent)" : "#222";
+                d.innerHTML = `${l.pinned ? '📌 ' : ''}${l.title}`;
+                d.onclick = () => { currentLog = l; draw(); closeSide(); };
                 list.appendChild(d);
             });
         }
 
-        function newChat() {
-            currentSession = { id: Date.now(), title: "NUEVO_LOG", messages: [], pinned: false };
-            document.getElementById("welcome").style.display = "block";
-            renderChat(); toggleMenu();
+        function hist(d) {
+            const us = currentLog.msgs.filter(m => m.r === 'u');
+            hIdx += d;
+            if(hIdx < 0) hIdx = 0;
+            if(hIdx >= us.length) hIdx = us.length;
+            document.getElementById("user-input").value = us[hIdx] ? us[hIdx].t : "";
         }
 
-        function toggleMenu() { document.getElementById("sidebar").classList.toggle("open"); document.getElementById("overlay-bg").style.display = document.getElementById("sidebar").classList.contains("open") ? "block" : "none"; }
-        document.getElementById("user-input").onkeypress = (e) => { if(e.key === 'Enter') sendMessage(); };
-        window.onload = updateSidebar;
+        function openSide() { document.getElementById("sidebar").classList.add("open"); }
+        function closeSide() { document.getElementById("sidebar").classList.remove("open"); }
+        function closeCtx() { document.getElementById("ctx-menu").style.display = "none"; }
+        function newSession() { currentLog = { id: Date.now(), title: "NUEVO_LOG", msgs: [], pinned: false }; document.getElementById("welcome").style.display = "block"; draw(); closeSide(); }
+        function editTitle() { const t = prompt("ID de sesión:"); if(t) { currentLog.title = t.toUpperCase(); save(); draw(); } }
+        function toggleMem() { mem = !mem; document.getElementById("mem-val").innerText = mem ? "ON" : "OFF"; }
+        function pinLog() { currentLog.pinned = !currentLog.pinned; save(); closeCtx(); }
+
+        document.getElementById("user-input").onkeypress = (e) => { if(e.key === 'Enter') send(); };
+        window.onload = updateList;
     </script>
 </body>
 </html>
