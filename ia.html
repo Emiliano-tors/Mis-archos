@@ -1,92 +1,56 @@
-    <script>
-        function toggleMenu() {
-            document.getElementById("menu-lateral").classList.toggle("abierto");
-            document.getElementById("overlay").classList.toggle("abierto");
-        }
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VIPER-CORE Terminal</title>
+    <style>
+        body { background: #000; color: #fff; font-family: sans-serif; margin: 0; display: flex; flex-direction: column; height: 100vh; }
+        #barra { height: 60px; border-bottom: 1px solid #333; display: flex; align-items: center; padding: 0 15px; font-weight: bold; }
+        #chat-box { flex-grow: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 10px; }
+        .user-msg { align-self: flex-end; background: #333; padding: 10px; border-radius: 10px; }
+        .bot-msg { align-self: flex-start; background: #1a1a1a; padding: 10px; border-radius: 10px; border: 1px solid #333; }
+        #entrada { padding: 20px; border-top: 1px solid #333; display: flex; }
+        #user-input { flex-grow: 1; background: #222; border: none; color: #fff; padding: 10px; border-radius: 20px; outline: none; }
+        #btn { background: #fff; border: none; padding: 10px; margin-left: 10px; border-radius: 50%; }
+    </style>
+</head>
+<body>
+    <div id="barra">VIPER-CORE v1.0</div>
+    <div id="chat-box"></div>
+    <div id="entrada">
+        <input type="text" id="user-input" placeholder="Comando...">
+        <button id="btn" onclick="enviar()">></button>
+    </div>
 
-        // --- DICCIONARIO INTELIGENTE ---
+    <script>
         const baseDatos = {
-            "hola": [
-                "VIPER-CORE en línea. Saludos, Operador.",
-                "Hola. ¿Cómo va todo, Operador?",
-                "Saludos, Operador."  
-            ],
-            "nombre": [
-                "VIPER.",
-                "Mi nombre es EYXM1."
-            ],
-            "quien eres": [
-                "Soy VIPER-CORE, una asistente de IA creada por E2012 y GM-CORE.",
-                "Soy una unidad de inteligencia lógica desarrollada por E2012 y GM-CORE."
-            ],
-            "creador": [
-                "Fui diseñada por el equipo de desarrollo: E2012 y GM-CORE.",
-                "E2012 y GM-CORE son los desarrolladores que me crearon."
-            ],
-            "estás bien": [
-                "Me siento perfecta.",
-                "Todo en orden. De eso no se preocupe."
-            ],
-            "tabla del 2": ["Aritmética básica: 2x1=2, 2x2=4, 2x3=6, 2x4=8, 2x5=10, 2x6=12, 2x7=14, 2x8=16, 2x9=18, 2x10=20."],
-            "tabla del 5": ["Cálculo completado: 5x1=5, 5x2=10, 5x3=15, 5x4=20, 5x5=25, 5x6=30, 5x7=35, 5x8=40, 5x9=45, 5x10=50."],
-            "ciencia": [
-                "La ciencia es el pilar de mi lógica. ¿Quieres analizar algún fenómeno?",
-                "Procesando datos científicos. El conocimiento es poder."
-            ],
-            "matemáticas": ["El lenguaje universal. Estoy listo para realizar cálculos."],
-            "937": [
-                "¡Dame unos segundos! Mostrando archivo clasificado: <br><img src='1234.jpg' style='width:100%; border-radius:10px; margin-top:10px; border: 1px solid #0f0;'>"
-            ],
-            "adiós": ["Cerrando sesión. Cuídate, Operador.", "VIPER fuera. Mantente a salvo."]
+            "hola": ["VIPER-CORE: En línea. Saludos, E2012.", "Sistemas listos."],
+            "quien eres": ["Soy VIPER-CORE, creada por E2012 y GM-CORE."],
+            "777": ["ACCESO CONCEDIDO: <br><img src='secreto.jpg' style='width:100%; border-radius:5px;'>"],
+            "tabla del 2": ["2x1=2, 2x2=4, 2x3=6, 2x4=8, 2x5=10, 2x6=12, 2x7=14, 2x8=16, 2x9=18, 2x10=20."]
         };
 
-        function enviarMensaje() {
-            const input = document.getElementById("user-input");
-            const chatBox = document.getElementById("chat-box");
-            const header = document.getElementById("titulo-header");
-            const msjGuia = document.getElementById("msj-guia");
-            
-            let texto = input.value.trim();
-            if (texto === "") return;
+        function enviar() {
+            let input = document.getElementById("user-input");
+            let val = input.value.trim().toLowerCase();
+            if (!val) return;
 
-            // Quitar mensaje de guía de forma segura
-            if (msjGuia) {
-                msjGuia.style.display = "none";
+            let box = document.getElementById("chat-box");
+            box.innerHTML += `<div class="user-msg">${input.value}</div>`;
+
+            let res = "VIPER: Comando no reconocido.";
+            if (baseDatos[val]) {
+                let opciones = baseDatos[val];
+                res = opciones[Math.floor(Math.random() * opciones.length)];
             }
 
-            // Actualizar título
-            let palabras = texto.split(' ');
-            header.innerText = palabras.slice(0, 2).join(' ').toUpperCase() + "...";
-
-            // Mostrar mensaje del usuario
-            chatBox.innerHTML += `<div class="user-msg">${texto}</div>`;
-            
-            let msgMin = texto.toLowerCase();
-            let respuestaFinal = "Dato no registrado. VIPER-CORE requiere actualización de E2012.";
-
-            // Buscar respuesta
-            for (let clave in baseDatos) {
-                if (msgMin.includes(clave)) {
-                    let opciones = baseDatos[clave];
-                    respuestaFinal = opciones[Math.floor(Math.random() * opciones.length)];
-                    break;
-                }
-            }
-
-            // Respuesta de VIPER con delay
             setTimeout(() => {
-                chatBox.innerHTML += `<div class="bot-msg"><b>VIPER:</b> ${respuestaFinal}</div>`;
-                chatBox.scrollTop = chatBox.scrollHeight;
-            }, 450);
-
+                box.innerHTML += `<div class="bot-msg">${res}</div>`;
+                box.scrollTop = box.scrollHeight;
+            }, 400);
             input.value = "";
         }
-
-        // Escuchar tecla Enter
-        document.getElementById("user-input").addEventListener("keypress", function(e) {
-            if (e.key === 'Enter') {
-                enviarMensaje();
-            }
-        });
     </script>
-    
+</body>
+</html>
