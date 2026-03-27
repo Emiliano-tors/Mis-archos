@@ -1,56 +1,91 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VIPER-CORE Terminal</title>
-    <style>
-        body { background: #000; color: #fff; font-family: sans-serif; margin: 0; display: flex; flex-direction: column; height: 100vh; }
-        #barra { height: 60px; border-bottom: 1px solid #333; display: flex; align-items: center; padding: 0 15px; font-weight: bold; }
-        #chat-box { flex-grow: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 10px; }
-        .user-msg { align-self: flex-end; background: #333; padding: 10px; border-radius: 10px; }
-        .bot-msg { align-self: flex-start; background: #1a1a1a; padding: 10px; border-radius: 10px; border: 1px solid #333; }
-        #entrada { padding: 20px; border-top: 1px solid #333; display: flex; }
-        #user-input { flex-grow: 1; background: #222; border: none; color: #fff; padding: 10px; border-radius: 20px; outline: none; }
-        #btn { background: #fff; border: none; padding: 10px; margin-left: 10px; border-radius: 50%; }
-    </style>
-</head>
-<body>
-    <div id="barra">VIPER-CORE v1.0</div>
-    <div id="chat-box"></div>
-    <div id="entrada">
-        <input type="text" id="user-input" placeholder="Comando...">
-        <button id="btn" onclick="enviar()">></button>
-    </div>
-
-    <script>
-        const baseDatos = {
-            "hola": ["VIPER-CORE: En línea. Saludos, E2012.", "Sistemas listos."],
-            "quien eres": ["Soy VIPER-CORE, creada por E2012 y GM-CORE."],
-            "777": ["ACCESO CONCEDIDO: <br><img src='secreto.jpg' style='width:100%; border-radius:5px;'>"],
-            "tabla del 2": ["2x1=2, 2x2=4, 2x3=6, 2x4=8, 2x5=10, 2x6=12, 2x7=14, 2x8=16, 2x9=18, 2x10=20."]
-        };
-
-        function enviar() {
-            let input = document.getElementById("user-input");
-            let val = input.value.trim().toLowerCase();
-            if (!val) return;
-
-            let box = document.getElementById("chat-box");
-            box.innerHTML += `<div class="user-msg">${input.value}</div>`;
-
-            let res = "VIPER: Comando no reconocido.";
-            if (baseDatos[val]) {
-                let opciones = baseDatos[val];
-                res = opciones[Math.floor(Math.random() * opciones.length)];
-            }
-
-            setTimeout(() => {
-                box.innerHTML += `<div class="bot-msg">${res}</div>`;
-                box.scrollTop = box.scrollHeight;
-            }, 400);
-            input.value = "";
+<script>
+    function toggleMenu() {
+        const menu = document.getElementById("menu-lateral");
+        const overlay = document.getElementById("overlay");
+        if (menu && overlay) {
+            menu.classList.toggle("abierto");
+            overlay.classList.toggle("abierto");
         }
-    </script>
-</body>
-</html>
+    }
+
+    // --- DICCIONARIO INTELIGENTE VIPER-CORE ---
+    const baseDatos = {
+        "hola": [
+            "VIPER-CORE en línea. Saludos, Operador.",
+            "Hola. ¿Cómo va todo, Operador?",
+            "Sistemas listos. ¿Qué órdenes tienes, Emiliano?"
+        ],
+        "nombre": [
+            "Mi designación es VIPER-CORE.",
+            "En los registros aparezco como EYXM1, pero puedes decirme VIPER."
+        ],
+        "quien eres": [
+            "Soy VIPER-CORE, un asistente de IA creado por E2012 y GM-CORE.",
+            "Soy una unidad de inteligencia lógica desarrollada por Emi y Gemini."
+        ],
+        "creador": [
+            "Fui diseñada por el equipo: E2012 (Emiliano) y GM-CORE (Gemini).",
+            "Mis creadores son E2012 y el núcleo GM-CORE."
+        ],
+        "estás bien": [
+            "Núcleo estable. Temperatura óptima.",
+            "Todo en orden. No detecto anomalías en el búnker."
+        ],
+        "tabla del 2": ["Aritmética: 2x1=2, 2x2=4, 2x3=6, 2x4=8, 2x5=10, 2x6=12, 2x7=14, 2x8=16, 2x9=18, 2x10=20."],
+        "tabla del 5": ["Cálculo: 5x1=5, 5x2=10, 5x3=15, 5x4=20, 5x5=25, 5x6=30, 5x7=35, 5x8=40, 5x9=45, 5x10=50."],
+        "ciencia": [
+            "La ciencia es el pilar de mi lógica. ¿Analizamos datos?",
+            "Procesando registros científicos. El conocimiento es poder."
+        ],
+        "matemáticas": ["El lenguaje universal. Mis procesadores están listos para calcular."],
+        "937": [
+            "¡Acceso concedido! Mostrando archivo clasificado: <br><img src='1234.jpg' style='width:100%; border-radius:10px; margin-top:10px; border: 2px solid #0f0; shadow: 0 0 10px #0f0;'>"
+        ],
+        "adiós": ["Sesión terminada. Cuídate, Operador.", "VIPER fuera. Mantente a salvo."]
+    };
+
+    function enviarMensaje() {
+        const input = document.getElementById("user-input");
+        const chatBox = document.getElementById("chat-box");
+        const header = document.getElementById("titulo-header");
+        
+        let texto = input.value.trim();
+        if (texto === "") return;
+
+        // Ocultar mensaje guía de forma eficiente
+        const msjGuia = document.getElementById("msj-guia");
+        if (msjGuia) msjGuia.remove();
+
+        // Actualizar título sin romper el diseño
+        header.innerText = "VIPER: " + (texto.length > 10 ? texto.substring(0, 10) + "..." : texto).toUpperCase();
+
+        // Mostrar mensaje del usuario
+        chatBox.innerHTML += `<div class="user-msg">${texto}</div>`;
+        
+        let msgMin = texto.toLowerCase();
+        let respuestaFinal = "Dato no registrado. VIPER requiere actualización de E2012.";
+
+        // Buscador de coincidencias
+        for (let clave in baseDatos) {
+            if (msgMin.includes(clave)) {
+                let opciones = baseDatos[clave];
+                respuestaFinal = opciones[Math.floor(Math.random() * opciones.length)];
+                break;
+            }
+        }
+
+        // Respuesta con delay para que parezca que piensa
+        setTimeout(() => {
+            chatBox.innerHTML += `<div class="bot-msg"><b>VIPER:</b> ${respuestaFinal}</div>`;
+            // Scroll automático al final
+            chatBox.scrollTo({ top: chatBox.scrollHeight, behavior: 'smooth' });
+        }, 400);
+
+        input.value = "";
+        input.focus();
+    }
+
+    document.getElementById("user-input").addEventListener("keypress", function(e) {
+        if (e.key === 'Enter') enviarMensaje();
+    });
+</script>
