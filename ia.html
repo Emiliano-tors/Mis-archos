@@ -3,280 +3,271 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VIPER-CORE v5.0 | EYU488</title>
+    <title>VIPER-CORE v5.0 ÉLITE (EYU488)</title>
     <style>
-        :root { --bg: #000; --panel: #0a0a0a; --accent: #00ff41; --text: #d1d1d1; --border: #1a1a1a; --user-msg: #161616; }
+        :root { --bg: #000; --panel: #0a0a0a; --accent: #00ff41; --text: #d1d1d1; --border: #1a1a1a; --user-msg: #161616; --danger: #ff3333; }
         body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', Roboto, sans-serif; margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
         
-        /* SIDEBAR LOGS */
-        #sidebar { width: 280px; background: var(--panel); position: fixed; left: -280px; height: 100%; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); z-index: 2000; border-right: 1px solid var(--border); padding: 20px; box-sizing: border-box; }
-        #sidebar.open { left: 0; box-shadow: 10px 0 30px rgba(0,255,65,0.05); }
-        .nav-btn { width: 100%; background: transparent; border: 1px solid var(--border); color: #fff; padding: 12px; border-radius: 4px; margin-bottom: 10px; cursor: pointer; font-size: 12px; text-transform: uppercase; }
-        .chat-item { padding: 12px; border-radius: 4px; margin-bottom: 5px; background: #0f0f0f; font-size: 13px; cursor: pointer; border: 1px solid transparent; display: flex; justify-content: space-between; }
-        .chat-item.pinned { border-color: var(--accent); }
+        /* SIDEBAR Y BOTÓN X */
+        #sidebar { width: 290px; background: var(--panel); position: fixed; left: -290px; height: 100%; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); z-index: 2000; border-right: 1px solid var(--border); padding: 20px; box-sizing: border-box; }
+        #sidebar.open { left: 0; }
+        .close-x { position: absolute; top: 10px; right: 10px; color: var(--danger); font-weight: bold; cursor: pointer; border: 1px solid var(--danger); padding: 5px 10px; border-radius: 3px; font-size: 12px; }
+        
+        .nav-btn { width: 100%; background: transparent; border: 1px solid var(--border); color: #fff; padding: 14px; border-radius: 4px; margin-bottom: 15px; cursor: pointer; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; }
+        .chat-item { padding: 12px; border-radius: 4px; margin-bottom: 8px; background: #0f0f0f; font-size: 13px; display: flex; justify-content: space-between; cursor: pointer; border: 1px solid transparent; }
+        .chat-item.pinned { border-color: var(--accent); background: #051005; }
 
-        /* MAIN INTERFACE */
-        #main { flex-grow: 1; display: flex; flex-direction: column; width: 100%; height: 100%; }
-        #header { height: 60px; padding: 0 20px; display: flex; align-items: center; border-bottom: 1px solid var(--border); justify-content: space-between; background: #000; }
+        /* INTERFAZ PRINCIPAL */
+        #main { flex-grow: 1; display: flex; flex-direction: column; width: 100%; height: 100%; position: relative; }
+        #header { height: 65px; padding: 0 20px; display: flex; align-items: center; border-bottom: 1px solid var(--border); justify-content: space-between; background: #000; z-index: 10; }
         
         #chat-box { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; padding-bottom: 150px; }
-        .msg { max-width: 85%; padding: 12px 16px; border-radius: 4px; font-size: 15px; animation: fadeIn 0.3s; word-wrap: break-word; position: relative; }
-        .user { align-self: flex-end; background: var(--user-msg); border: 1px solid #222; }
+        .msg { max-width: 85%; padding: 15px; border-radius: 4px; font-size: 15px; line-height: 1.6; animation: fadeIn 0.3s ease; word-wrap: break-word; position: relative; }
+        .user { align-self: flex-end; background: var(--user-msg); border: 1px solid #222; color: #fff; }
         .viper { align-self: flex-start; background: transparent; border: 1px solid var(--border); color: var(--accent); }
-        .msg img { max-width: 100%; border-radius: 4px; margin-top: 10px; }
+        
+        /* ANALIZANDO ESTILO */
+        .analizando { font-size: 12px; color: #555; margin-bottom: 5px; letter-spacing: 2px; }
+        .loading-bar { width: 100px; height: 2px; background: #111; position: relative; overflow: hidden; }
+        .loading-bar::after { content: ''; position: absolute; width: 40px; height: 100%; background: var(--accent); animation: drive 1s infinite; }
+        @keyframes drive { 0% { left: -40px; } 100% { left: 100px; } }
 
         /* INPUT AREA */
-        #input-container { position: fixed; bottom: 0; width: 100%; padding: 20px; box-sizing: border-box; background: linear-gradient(0deg, #000 80%, transparent); }
-        #input-area { background: #0c0c0c; border-radius: 4px; display: flex; align-items: center; padding: 5px 15px; border: 1px solid var(--border); }
-        #user-input { flex-grow: 1; background: transparent; border: none; color: #fff; padding: 12px 0; outline: none; }
-        
-        /* MENU CONTEXTUAL */
-        #popup-menu { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 3000; align-items: center; justify-content: center; }
-        .menu-content { background: #0a0a0a; width: 250px; border: 1px solid var(--border); padding: 10px; }
-        .menu-opt { padding: 12px; cursor: pointer; border-bottom: 1px solid #111; font-size: 14px; }
+        #input-container { position: fixed; bottom: 0; left: 0; width: 100%; padding: 20px; box-sizing: border-box; background: linear-gradient(0deg, #000 80%, transparent); z-index: 1500; }
+        #input-area { background: #0c0c0c; border-radius: 4px; display: flex; align-items: center; padding: 5px 15px; border: 1px solid var(--border); gap: 10px; }
+        #user-input { flex-grow: 1; background: transparent; border: none; color: #fff; padding: 15px 0; outline: none; font-size: 15px; }
 
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        /* POPUP MENU */
+        #popup-menu { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 3000; align-items: center; justify-content: center; }
+        .menu-content { background: #0a0a0a; width: 85%; max-width: 320px; border: 1px solid var(--border); padding: 15px; position: relative; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
     <div id="sidebar">
-        <div style="color: var(--accent); font-size: 10px; margin-bottom: 20px;">EYU488 ANALYTICS</div>
+        <div class="close-x" onclick="toggleMenu()">X</div>
+        <div style="font-size: 10px; color: var(--accent); margin-bottom: 25px; letter-spacing: 3px;">EYU488 v5.0 CORE</div>
         <button class="nav-btn" onclick="newChat()">+ Nueva Sesión</button>
+        <button class="nav-btn" onclick="toggleMemoria()">Memoria: <span id="mem-stat">ACTIVA</span></button>
+        <div style="margin: 20px 0 10px 0; font-size: 11px; color: #333;">HISTORIAL DE DATOS</div>
         <div id="chat-list"></div>
     </div>
 
-    <div id="popup-menu" onclick="closeMenu()">
-        <div class="menu-content" id="menu-box" onclick="event.stopPropagation()"></div>
+    <div id="popup-menu">
+        <div class="menu-content">
+            <div class="close-x" onclick="closeMenu()">X</div>
+            <div id="menu-box"></div>
+        </div>
     </div>
 
     <div id="main">
         <div id="header">
-            <div onclick="toggleSidebar()" style="cursor:pointer;">⊞</div>
-            <div id="header-title" onclick="renameChat()" style="font-size: 13px; letter-spacing: 2px;">VIPER-CORE v5.0</div>
-            <div id="mode-indicator" style="font-size: 9px; color: #555;">MODO: REGULAR</div>
+            <div onclick="toggleMenu()" style="font-size:22px; cursor:pointer; color:var(--accent);">⊞</div>
+            <div id="header-title" onclick="renameChat()" style="font-weight:bold; letter-spacing:2px; font-size: 13px;">VIPER-CORE</div>
+            <div style="width:10px; height:10px; background:var(--accent); border-radius:50%;"></div>
         </div>
 
         <div id="chat-box">
-            <div id="welcome" style="text-align:center; margin-top:100px; color:#333;">
-                <h1 style="color:#fff; font-weight:100;">EYU488</h1>
-                <p>SISTEMA DE ASISTENCIA DIGITAL | 21 AÑOS</p>
+            <div class="welcome-msg" id="welcome" style="text-align:center; margin:auto;">
+                <h2 style="font-weight:200;">EYU488</h2>
+                <p style="font-size:10px; color:#444;">21 AÑOS | ASISTENTE DIGITAL</p>
             </div>
         </div>
 
         <div id="input-container">
             <div id="input-area">
-                <button onclick="navHistory(-1)" style="background:none; border:none; color:#444;">↼</button>
-                <input type="text" id="user-input" placeholder="Analizando entorno..." autocomplete="off">
-                <button onclick="navHistory(1)" style="background:none; border:none; color:#444;">⇀</button>
-                <button onclick="processCommand()" style="background:none; border:none; color:var(--accent); margin-left:10px;">◈</button>
+                <button class="action-btn" onclick="historyNav(-1)" style="background:none; border:none; color:#444;">↼</button>
+                <input type="text" id="user-input" placeholder="Analizando entrada..." autocomplete="off">
+                <button class="action-btn" onclick="historyNav(1)" style="background:none; border:none; color:#444;">⇀</button>
+                <button onclick="sendMessage()" style="background:none; border:none; color:var(--accent); font-size:20px;">◈</button>
             </div>
         </div>
     </div>
 
     <script>
-        // --- LÓGICA DE SOPORTE Y MEMORIA ---
-        let logs = JSON.parse(localStorage.getItem('EYU_LOGS')) || [];
-        let currentChat = { id: Date.now(), title: "NUEVO_LOG", messages: [], pinned: false };
-        let cmdHistory = [];
-        let historyIdx = -1;
-        let isProcessing = false;
-        let mode = "regular"; // fun o regular
-        let memoryActive = true;
+        // --- 1. DICCIONARIO Y ABECEDARIO MAESTRO ---
+        const ALFABETO = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789áéíóúñÁÉÍÓÚÑ ,.!?;:()\"'-";
+        const DICCIONARIO = ["hola", "saludos", "operador", "comando", "error", "sistema", "viper", "eyu488", "analizando", "matemáticas", "física", "programación", "hollow", "knight", "modern", "warfare"];
 
-        // --- ABECEDARIO Y DICCIONARIO (BASE DE PROCESAMIENTO) ---
-        const ABC = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789áéíóúñÁÉÍÓÚÑ ,.!?;:";
-        const DICCIONARIO = ["analizar", "procesar", "entendido", "error", "ejecutando", "viper", "eyu488"]; 
+        // --- 2. ESPACIOS PARA TUS CÓDIGOS (PERSONALIZACIÓN) ---
+        // ESPACIO 1: Códigos de "Si digo esto, tú di esto"
+        const COMANDOS_PERSONALIZADOS = {
+            "test": "Sistema funcionando al 100%, Emi.",
+            "quien eres": "Soy EYU488, tu asistente de 21 años enfocada en soporte técnico y táctico."
+        };
 
-        // --- FUNCIONES DE INTERFAZ ---
-        function toggleSidebar() { document.getElementById("sidebar").classList.toggle("open"); }
-        
-        function render() {
-            const box = document.getElementById("chat-box");
-            box.innerHTML = "";
-            if(currentChat.messages.length > 0) document.getElementById("welcome").style.display = "none";
-            
-            currentChat.messages.forEach((m, i) => {
-                const div = document.createElement("div");
-                div.className = `msg ${m.role === 'u' ? 'user' : 'viper'}`;
-                div.innerHTML = m.text;
-                if(m.img) div.innerHTML += `<br><img src="${m.img}">`;
-                
-                // Pulsación larga para menú contextual
-                div.onmousedown = div.ontouchstart = (e) => {
-                    pressTimer = setTimeout(() => openMenu(i), 700);
-                };
-                div.onmouseup = div.ontouchend = () => clearTimeout(pressTimer);
-                
-                box.appendChild(div);
-            });
-            if(!isManualScrolling) box.scrollTop = box.scrollHeight;
-            document.getElementById("header-title").innerText = currentChat.title;
+        // ESPACIO 2: Para nuevas funciones de cualquier tipo
+        function nuevasFuncionesExtra(input) {
+            // Aquí puedes meter lógicas locas en el futuro
+            if(input.includes("/seguridad")) return "Protocolos de cifrado activados.";
+            if(input.includes("/limpiar")) { location.reload(); return "Memoria volátil purgada."; }
+            return null;
         }
 
-        // --- PROCESAMIENTO DE COMANDOS (PENSAR ANTES DE HABLAR) ---
-        async function processCommand() {
-            if(isProcessing) return;
+        // --- 3. LÓGICA CORE ---
+        let currentSession = { id: Date.now(), title: "LOG_NUEVO", messages: [], pinned: false };
+        let historyIndex = -1;
+        let bloqueado = false;
+        let memoriaActiva = true;
+        let pressTimer;
+
+        function sendMessage() {
+            if(bloqueado) return;
             const input = document.getElementById("user-input");
-            const rawText = input.value.trim();
-            if(!rawText) return;
+            const val = input.value.trim();
+            if(!val) return;
 
-            // Guardar en historial de flechas
-            cmdHistory.push(rawText);
-            historyIdx = cmdHistory.length;
-
-            // Detección de comandos especiales
-            if(rawText.startsWith("/")) {
-                handleSpecial(rawText);
-                input.value = "";
-                return;
-            }
-
-            // Registro de usuario
-            currentChat.messages.push({ role: 'u', text: rawText });
-            if(currentChat.messages.length === 1) currentChat.title = rawText.substring(0,15).toUpperCase();
+            // Lógica de Historial (Flechas)
+            document.getElementById("welcome").style.display = "none";
+            currentSession.messages.push({ role: 'u', text: val });
+            if(currentSession.messages.length === 1) currentSession.title = val.substring(0, 15).toUpperCase();
             
-            render();
+            renderChat();
             input.value = "";
-            isProcessing = true;
+            bloqueado = true; // Bloqueo preventivo
 
-            // Lógica de "Pensar antes de hablar" (Simulada con el diccionario)
-            const analisis = `Analizando: ${rawText.split("").filter(c => ABC.includes(c)).join("")}`;
-            console.log(analisis); 
-
-            // Simulación de carga (Análisis real)
-            const tempId = "L-" + Date.now();
-            const lDiv = document.createElement("div");
-            lDiv.className = "msg viper"; lDiv.id = tempId;
-            lDiv.innerHTML = "Analizando cadena de datos...";
-            document.getElementById("chat-box").appendChild(lDiv);
+            // Efecto de Análisis Real
+            const loadId = "L-" + Date.now();
+            const loadDiv = document.createElement("div");
+            loadDiv.className = "msg viper";
+            loadDiv.id = loadId;
+            loadDiv.innerHTML = `<div class="analizando">PROCESANDO ABECEDARIO...</div><div class="loading-bar"></div>`;
+            document.getElementById("chat-box").appendChild(loadDiv);
+            scrollToBottom();
 
             setTimeout(() => {
-                document.getElementById(tempId).remove();
+                const loader = document.getElementById(loadId);
+                if(loader) loader.remove();
                 
-                // RESPUESTA FINAL
-                let finalResp = generateResponse(rawText);
-                currentChat.messages.push({ role: 'v', text: "" });
-                typeWriter(finalResp, currentChat.messages.length - 1);
+                // PROCESO DE RESPUESTA
+                let respuestaFinal = "Comando procesado por Diccionario Maestro.";
+                
+                // 1. Check Personalizados
+                if(COMANDOS_PERSONALIZADOS[val.toLowerCase()]) respuestaFinal = COMANDOS_PERSONALIZADOS[val.toLowerCase()];
+                
+                // 2. Check Funciones Extra
+                let extra = nuevasFuncionesExtra(val);
+                if(extra) respuestaFinal = extra;
+
+                currentSession.messages.push({ role: 'v', text: respuestaFinal });
+                typeWriter(respuestaFinal);
+                save();
             }, 1800);
         }
 
-        function generateResponse(input) {
-            let low = input.toLowerCase();
-            
-            // --- ESPACIO 1: CÓDIGOS PERSONALIZADOS (SI DIGO ESTO DI ESTO) ---
-            if(low.includes("quien eres")) return "Soy EYU488, asistente digital de 21 años bajo protocolo VIPER-CORE.";
-            if(low.includes("hollow knight")) return "47 horas y 58 minutos... lo completaste todo. Increíble, Emi.";
-            // -------------------------------------------------------------
-
-            if(mode === "fun") return "Analicé tu mensaje y... vaya pérdida de tiempo. Pero bueno, aquí tienes tu respuesta estándar.";
-            return "Comando recibido. Los parámetros han sido ajustados según el abecedario del sistema.";
-        }
-
-        function typeWriter(text, msgIdx) {
-            let i = 0;
+        function typeWriter(text) {
             const box = document.getElementById("chat-box");
-            const lastMsgDiv = box.lastElementChild;
+            const div = document.createElement("div");
+            div.className = "msg viper";
+            box.appendChild(div);
+            let i = 0;
             function write() {
                 if (i < text.length) {
-                    lastMsgDiv.innerHTML += text.charAt(i);
-                    currentChat.messages[msgIdx].text += text.charAt(i);
+                    div.innerHTML += text.charAt(i);
                     i++;
-                    setTimeout(write, 30);
-                    box.scrollTop = box.scrollHeight;
+                    setTimeout(write, 25);
+                    scrollToBottom();
                 } else {
-                    isProcessing = false;
-                    save();
+                    bloqueado = false; // DESBLOQUEO GARANTIZADO
                 }
             }
             write();
         }
 
-        // --- FUNCIONES DE SOPORTE ADICIONALES ---
-        function handleSpecial(cmd) {
-            if(cmd === "/limpiar") { currentChat.messages = []; render(); save(); }
-            if(cmd === "/fun") { mode = "fun"; alert("MODO FUN ACTIVADO"); }
-            if(cmd === "/regular") { mode = "regular"; alert("MODO REGULAR ACTIVADO"); }
-        }
-
-        function navHistory(dir) {
-            historyIdx += dir;
-            if(historyIdx < 0) historyIdx = 0;
-            if(historyIdx >= cmdHistory.length) historyIdx = cmdHistory.length;
-            document.getElementById("user-input").value = cmdHistory[historyIdx] || "";
+        function renderChat() {
+            const box = document.getElementById("chat-box");
+            box.innerHTML = "";
+            currentSession.messages.forEach((m, idx) => {
+                const div = document.createElement("div");
+                div.className = `msg ${m.role === 'u' ? 'user' : 'viper'}`;
+                div.innerHTML = m.text;
+                // Menú Contextual (Pulsación Larga)
+                div.onmousedown = div.ontouchstart = () => pressTimer = setTimeout(() => openMenu(idx), 800);
+                div.onmouseup = div.ontouchend = () => clearTimeout(pressTimer);
+                box.appendChild(div);
+            });
+            scrollToBottom();
+            document.getElementById("header-title").innerText = currentSession.title;
         }
 
         function openMenu(idx) {
-            const m = document.getElementById("menu-box");
-            m.innerHTML = `
-                <div class="menu-opt" onclick="editMsg(${idx})">Editar Registro</div>
-                <div class="menu-opt" onclick="deleteMsg(${idx})">Purgar</div>
-                <div class="menu-opt" onclick="togglePin()">Fijar Sesión</div>
-                <div class="menu-opt" onclick="closeMenu()">Cerrar</div>
+            const menu = document.getElementById("menu-box");
+            menu.innerHTML = `
+                <div class="menu-opt" style="padding:15px; border-bottom:1px solid #111;" onclick="editMsg(${idx})">EDITAR COMANDO</div>
+                <div class="menu-opt" style="padding:15px; border-bottom:1px solid #111; color:var(--danger);" onclick="deleteMsg(${idx})">PURGAR REGISTRO</div>
+                <div class="menu-opt" style="padding:15px;" onclick="togglePinChat()">ANCLAR/DESANCLAR SESIÓN</div>
             `;
             document.getElementById("popup-menu").style.display = "flex";
         }
 
         function editMsg(idx) {
-            const n = prompt("Corregir comando:", currentChat.messages[idx].text);
-            if(n) { currentChat.messages[idx].text = n; render(); save(); }
+            const t = prompt("Corregir comando:", currentSession.messages[idx].text);
+            if(t) { currentSession.messages[idx].text = t; renderChat(); save(); }
             closeMenu();
         }
 
         function deleteMsg(idx) {
-            currentChat.messages.splice(idx, 1);
-            render(); save(); closeMenu();
+            currentSession.messages.splice(idx, 1);
+            renderChat(); save(); closeMenu();
+        }
+
+        function toggleMemoria() {
+            memoriaActiva = !memoriaActiva;
+            document.getElementById("mem-stat").innerText = memoriaActiva ? "ACTIVA" : "OFF";
         }
 
         function save() {
-            let idx = logs.findIndex(l => l.id === currentChat.id);
-            if(idx > -1) logs[idx] = currentChat; else logs.unshift(currentChat);
-            localStorage.setItem('EYU_LOGS', JSON.stringify(logs));
+            let logs = JSON.parse(localStorage.getItem('v_logs_v5') || "[]");
+            const i = logs.findIndex(l => l.id === currentSession.id);
+            if(i > -1) logs[i] = currentSession; else logs.unshift(currentSession);
+            logs.sort((a,b) => b.pinned - a.pinned);
+            localStorage.setItem('v_logs_v5', JSON.stringify(logs));
             updateSidebar();
         }
 
         function updateSidebar() {
             const list = document.getElementById("chat-list");
             list.innerHTML = "";
+            const logs = JSON.parse(localStorage.getItem('v_logs_v5') || "[]");
             logs.forEach(l => {
                 const d = document.createElement("div");
                 d.className = `chat-item ${l.pinned ? 'pinned' : ''}`;
-                d.innerHTML = `<span>${l.title}</span>`;
-                d.onclick = () => { currentChat = l; render(); toggleSidebar(); };
+                d.innerHTML = `<span>${l.title}</span> ${l.pinned ? '<span style="color:var(--accent);">📌</span>' : ''}`;
+                d.onclick = () => { currentSession = l; renderChat(); toggleMenu(); };
                 list.appendChild(d);
             });
         }
 
+        function historyNav(dir) {
+            const uMsgs = currentSession.messages.filter(m => m.role === 'u');
+            historyIndex += dir;
+            if(historyIndex < 0) historyIndex = 0;
+            if(historyIndex >= uMsgs.length) historyIndex = uMsgs.length;
+            document.getElementById("user-input").value = uMsgs[historyIndex] ? uMsgs[historyIndex].text : "";
+        }
+
+        function scrollToBottom() {
+            const box = document.getElementById("chat-box");
+            box.scrollTop = box.scrollHeight;
+        }
+
         function newChat() {
-            currentChat = { id: Date.now(), title: "NUEVO_LOG", messages: [], pinned: false };
-            render(); document.getElementById("welcome").style.display = "block";
-            toggleSidebar();
+            currentSession = { id: Date.now(), title: "LOG_NUEVO", messages: [], pinned: false };
+            document.getElementById("welcome").style.display = "block";
+            renderChat();
         }
 
-        function renameChat() {
-            const n = prompt("Nuevo ID:", currentChat.title);
-            if(n) { currentChat.title = n.toUpperCase(); render(); save(); }
-        }
-
+        function toggleMenu() { document.getElementById("sidebar").classList.toggle("open"); }
         function closeMenu() { document.getElementById("popup-menu").style.display = "none"; }
-
-        // AUTO-SCROLL INTELIGENTE
-        let isManualScrolling = false;
-        document.getElementById("chat-box").onscroll = function() {
-            const b = document.getElementById("chat-box");
-            isManualScrolling = (b.scrollTop + b.offsetHeight < b.scrollHeight - 50);
-        };
-
-        // --- ESPACIO 2: NUEVAS FUNCIONES DE CUALQUIER TIPO ---
-        function addViperFeature(name, logic) {
-            // Reservado para tus futuras expansiones
-            console.log(`Función ${name} lista para integrar.`);
+        function renameChat() {
+            const n = prompt("Nuevo ID:", currentSession.title);
+            if(n) { currentSession.title = n.toUpperCase(); save(); renderChat(); }
         }
-        // ---------------------------------------------------
 
+        document.getElementById("user-input").onkeypress = (e) => { if(e.key === 'Enter') sendMessage(); };
         window.onload = updateSidebar;
-        document.getElementById("user-input").onkeypress = (e) => { if(e.key === 'Enter') processCommand(); };
     </script>
 </body>
-                    </html>
-                    
+</html>
