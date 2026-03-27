@@ -3,45 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VIPER-CORE v1.2</title>
+    <title>VIPER-CORE v1.2.2</title>
     <style>
         :root { --bg: #000; --accent: #0f0; --panel: #0a0a0a; --border: #1a1a1a; --user-msg: #161616; --text: #d1d1d1; }
         body { background: var(--bg); color: var(--text); font-family: sans-serif; margin: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-        
         header { height: 60px; padding: 0 15px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); background: #000; }
         .menu-t { font-size: 24px; cursor: pointer; color: var(--accent); font-weight: bold; }
         .title { font-weight: bold; letter-spacing: 2px; font-size: 14px; text-transform: uppercase; }
-
         #chat-box { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; padding-bottom: 100px; }
         .msg { max-width: 85%; padding: 12px 16px; border-radius: 15px; font-size: 15px; line-height: 1.4; word-wrap: break-word; }
         .u { align-self: flex-end; background: var(--user-msg); color: #fff; border-bottom-right-radius: 2px; }
         .v { align-self: flex-start; background: #0a0a0a; border: 1px solid var(--border); color: var(--accent); border-bottom-left-radius: 2px; }
-
         #input-container { position: fixed; bottom: 0; width: 100%; padding: 15px; box-sizing: border-box; background: #000; border-top: 1px solid var(--border); }
         #input-area { background: #111; border-radius: 25px; display: flex; align-items: center; padding: 5px 15px; border: 1px solid #222; }
         #user-input { flex-grow: 1; background: transparent; border: none; color: #fff; padding: 12px 0; outline: none; font-size: 16px; }
         .send-btn { background: none; border: none; color: var(--accent); font-weight: bold; cursor: pointer; padding: 5px 10px; font-size: 18px; }
-
-        #sidebar { width: 260px; background: var(--panel); position: fixed; left: -260px; height: 100%; transition: 0.3s; z-index: 2000; border-right: 1px solid var(--border); padding: 20px; box-sizing: border-box; }
-        #sidebar.open { left: 0; }
-        .nav-btn { width: 100%; background: #111; border: 1px solid var(--border); color: #fff; padding: 12px; margin-bottom: 10px; cursor: pointer; text-align: left; font-size: 11px; font-weight: bold; text-transform: uppercase; }
-        
-        .chat-link { padding: 10px; border-bottom: 1px solid #1a1a1a; cursor: pointer; font-size: 12px; color: #888; }
-        .chat-link:hover { color: var(--accent); }
     </style>
 </head>
 <body>
-
-    <div id="sidebar">
-        <div style="color:red; text-align:right; cursor:pointer; font-weight:bold; margin-bottom:10px;" onclick="toggleMenu()">CERRAR</div>
-        <button class="nav-btn" onclick="nuevaSesion()">+ NUEVO CHAT</button>
-        <div style="font-size: 10px; color: #444; margin: 15px 0 5px 0;">HISTORIAL DE LOGS</div>
-        <div id="lista-chats"></div>
-    </div>
-
     <header>
-        <div class="menu-t" onclick="toggleMenu()">=</div>
-        <div class="title" id="display-title">VIPER SYSTEM</div>
+        <div class="menu-t">=</div>
+        <div class="title">VIPER SYSTEM</div>
         <div style="width:10px; height:10px; background:var(--accent); border-radius:50%;"></div>
     </header>
 
@@ -55,81 +37,38 @@
     </div>
 
     <script>
-        // --- LOGICA DE SESIONES ---
-        let sesionActual = { id: Date.now(), titulo: "LOG_01", msgs: [] };
-
-        function inicializar() {
-            const guardado = localStorage.getItem('viper_logs');
-            if (guardado) {
-                const logs = JSON.parse(guardado);
-                sesionActual = logs[0]; // Cargar el ultimo
-            }
-            renderChat();
-            renderLista();
-        }
+        // Lista de objetos para los mensajes
+        let historialMsgs = [];
 
         function enviar() {
             const input = document.getElementById("user-input");
+            const box = document.getElementById("chat-box");
             const val = input.value.trim();
+
             if(!val) return;
 
-            // Guardar mensaje de usuario
-            sesionActual.msgs.push({ r: 'u', t: val });
-            if(sesionActual.msgs.length === 1) sesionActual.titulo = val.substring(0, 12).toUpperCase();
+            // 1. Creamos el OBJETO del mensaje del usuario
+            const msgUsuario = { r: 'u', t: val };
+            historialMsgs.push(msgUsuario);
+            
+            // 2. Pintamos en pantalla usando el objeto
+            box.innerHTML += `<div class="msg ${msgUsuario.r}">${msgUsuario.t}</div>`;
             
             input.value = "";
-            renderChat();
+            box.scrollTop = box.scrollHeight;
 
+            // 3. Respuesta de la IA como OBJETO
             setTimeout(() => {
-                sesionActual.msgs.push({ r: 'v', t: "Comando recibido. VIPER activo." });
-                renderChat();
-                guardar();
+                const msgIA = { r: 'v', t: "Objeto recibido correctamente." };
+                historialMsgs.push(msgIA);
+                box.innerHTML += `<div class="msg ${msgIA.r}">${msgIA.t}</div>`;
+                box.scrollTop = box.scrollHeight;
             }, 200);
         }
 
-        function guardar() {
-            let logs = JSON.parse(localStorage.getItem('viper_logs') || "[]");
-            const index = logs.findIndex(l => l.id === sesionActual.id);
-            if (index > -1) logs[index] = sesionActual; else logs.unshift(sesionActual);
-            localStorage.setItem('viper_logs', JSON.stringify(logs));
-            renderLista();
-        }
-
-        function renderChat() {
-            const box = document.getElementById("chat-box");
-            const title = document.getElementById("display-title");
-            box.innerHTML = "";
-            title.innerText = sesionActual.titulo;
-            
-            sesionActual.msgs.forEach(m => {
-                box.innerHTML += `<div class="msg ${m.r}">${m.t}</div>`;
-            });
-            box.scrollTop = box.scrollHeight;
-        }
-
-        function renderLista() {
-            const lista = document.getElementById("lista-chats");
-            const logs = JSON.parse(localStorage.getItem('viper_logs') || "[]");
-            lista.innerHTML = "";
-            logs.forEach(l => {
-                const item = document.createElement("div");
-                item.className = "chat-link";
-                item.innerText = l.titulo;
-                item.onclick = () => { sesionActual = l; renderChat(); toggleMenu(); };
-                lista.appendChild(item);
-            });
-        }
-
-        function nuevaSesion() {
-            sesionActual = { id: Date.now(), titulo: "NUEVO_LOG", msgs: [] };
-            renderChat();
-            toggleMenu();
-        }
-
-        function toggleMenu() { document.getElementById("sidebar").classList.toggle("open"); }
-        document.getElementById("user-input").onkeypress = (e) => { if(e.key === 'Enter') enviar(); };
-        
-        window.onload = inicializar;
+        document.getElementById("user-input").onkeypress = (e) => {
+            if(e.key === 'Enter') enviar();
+        };
     </script>
 </body>
 </html>
